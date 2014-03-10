@@ -54,7 +54,13 @@ searchChildren = false, // -c
 printMD5 = false; // -m
 MDL0PrintType modelsDeep = SELECTIVE; // --mdl0, --no-mdl0
 
+template < class T, class U >
+Boolean isinst(U u) {
+	return dynamic_cast< T >(u) != nullptr;
+}
+
 void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output);
+void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth);
 
 int main(array<System::String ^> ^args) {
 	if (args->Length == 0) {
@@ -123,7 +129,8 @@ int main(array<System::String ^> ^args) {
 			Console::WriteLine(child->Name);
 		}
 	} else if (matchingNodes.Count == 1) {
-		Console::WriteLine(matchingNodes[0]->Name);
+		int maxdepth = recursive ? -1 : 1;
+		print_recursive("", matchingNodes[0], true, maxdepth);
 	} else {
 		Console::Error->WriteLine("Error: search matched more than one node. Use --self to list them.");
 		return 1;
@@ -156,6 +163,35 @@ void find_children_recursive(ResourceNode^ root, String^ nodepath, List<Resource
 			if (exp->IsMatch(child->Name)) {
 				find_children_recursive(child, remainder, output);
 			}
+		}
+	}
+}
+
+void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth) {
+	if (!isRoot) {
+		//print_obj_name(prefix, node);
+		Console::WriteLine(prefix + node->Name);
+		prefix += "  ";
+	}
+
+	if (maxdepth == 0) return;
+
+	if (isinst<STPMEntryNode^>(node) && stpmValues) {
+		//print_stpm(prefix, node);
+	} else {
+		if (isinst<MDL0Node^>(node)) {
+			if (modelsDeep == NEVER) {
+				return;
+			} else if (modelsDeep == SELECTIVE && !isRoot && !node->Name->EndsWith("osition")) {
+				return;
+			}
+		}
+
+		int newdepth = maxdepth < 0
+			? -1
+			: maxdepth - 1;
+		for each(ResourceNode^ child in node->Children) {
+			print_recursive(prefix, child, false, newdepth);
 		}
 	}
 }
