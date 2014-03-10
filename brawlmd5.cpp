@@ -5,15 +5,7 @@ using namespace System;
 using namespace System::Text;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
-String^ md5str(void* addr, int len) {
-	return BrawlLS::Methods::MD5Str(addr, len);
-}
-
-String^ md5str(ResourceNode^ node) {
-	return BrawlLS::Methods::MD5Str(node);
-}
-
-String^ BrawlLS::Methods::MD5Str(void* addr, int len) {
+String^ BrawlLS::MD5::MD5Str(void* addr, int len) {
 	MD5_CTX context;
 	MD5_Init(&context);
 	MD5_Update(&context, addr, len);
@@ -27,7 +19,7 @@ String^ BrawlLS::Methods::MD5Str(void* addr, int len) {
 	return sb.ToString();
 }
 
-String^ BrawlLS::Methods::MD5Str(ResourceNode^ node) {
+String^ BrawlLS::MD5::MD5Str(ResourceNode^ node) {
 	void* addr = node->OriginalSource.Address;
 	int len = node->OriginalSource.Length;
 	return MD5Str(addr, len);

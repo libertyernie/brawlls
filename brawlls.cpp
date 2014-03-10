@@ -7,6 +7,7 @@ using namespace System::IO;
 using namespace System::Reflection;
 using namespace System::Text::RegularExpressions;
 using namespace BrawlLib::SSBB::ResourceNodes;
+using BrawlLS::MD5;
 
 const char* usage_line = "Usage: brawlls [options] filename [path within file]";
 const char* usage_help_line = "Run with --help or /? for more information.";
@@ -239,7 +240,7 @@ void printf_obj(String^ format, String^ prefix, Object^ obj) {
 	String^ size = "";
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
-		md5 = "MD5:" + md5str(node);
+		md5 = "MD5:" + MD5::MD5Str(node);
 		index = node->Index + "";
 		size = node->OriginalSource.Length + "";
 	}
