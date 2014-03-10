@@ -34,7 +34,7 @@ wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
 The + character does not need to be preceded by a slash.)";
 
 const char* format_help = R"(
-    Default format with -t and -m: %p%i %n %t %b %m
+    Default format with -t and -m: +%p%i %n %t %b %m
     %t appears when -t is specified, %m appears for -m, and %b
     appears by default (but can be turned off with --no-bone.)
     
@@ -44,7 +44,9 @@ const char* format_help = R"(
     %n  name of node
     %t  type of node
     %b  trans/rot/scale of MDL0 bones (only appears for MDL0BoneNodes)
-    %m  MD5 checksum of original node data)";
+    %m  MD5 checksum of original node data
+    %s  size in bytes of original node data
+    %%  literal % sign)";
 
 int usage(String^ error_msg) {
 	if (error_msg->Length != 0) Console::Error->WriteLine(error_msg + "\n");
@@ -80,7 +82,6 @@ int main(array<System::String ^> ^args) {
 	if (args->Length == 0) {
 		return usage("");
 	}
-	//Console::WriteLine(IO::Path::GetFileName(Reflection::Assembly::GetEntryAssembly()->Location));
 
 	String^ filename;
 	String^ nodepath;
@@ -145,7 +146,7 @@ int main(array<System::String ^> ^args) {
 	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
 	
 	if (format == nullptr) {
-		format = "%p%i %n " +
+		format = "+%p%i %n " +
 			showtype ? " %t" : "" +
 			boneValues ? " %b" : "" +
 			printMD5 ? " %m" : "";
@@ -159,7 +160,7 @@ int main(array<System::String ^> ^args) {
 		int maxdepth = recursive ? -1 : 1;
 		print_recursive(format, "", matchingNodes[0], true, maxdepth);
 	} else {
-		Console::Error->WriteLine("Error: search matched more than one node. Use --self to list them.");
+		Console::Error->WriteLine("Error: search matched more than one node. Use -d or --self to list them.");
 		return 1;
 	}
 }
@@ -226,9 +227,6 @@ void printf_obj(String^ format, String^ prefix, Object^ obj) {
 	String^ name = obj == nullptr
 		? "null"
 		: obj->ToString();
-	String^ index = isinst<ResourceNode^>(obj)
-		? ((ResourceNode^)obj)->Index + ""
-		: "";
 	String^ bone = "";
 	if (isinst<MDL0BoneNode^>(obj)) {
 		MDL0BoneNode^ b = (MDL0BoneNode^)obj;
@@ -236,10 +234,14 @@ void printf_obj(String^ format, String^ prefix, Object^ obj) {
 		bone += " R" + b->Rotation;
 		bone += " S" + b->Scale;
 	}
-	String^ md5;
+	String^ index = "";
+	String^ md5 = "";
+	String^ size = "";
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
 		md5 = "MD5:" + md5str(node);
+		index = node->Index + "";
+		size = node->OriginalSource.Length + "";
 	}
 	String^ line = format
 		->Replace("%p", prefix)
@@ -248,6 +250,7 @@ void printf_obj(String^ format, String^ prefix, Object^ obj) {
 		->Replace("%t", "(" + obj->GetType()->Name + ")")
 		->Replace("%b", bone)
 		->Replace("%m", md5)
+		->Replace("%s", size)
 		->Replace("%%", "%");
 	Console::WriteLine(line);
 }
