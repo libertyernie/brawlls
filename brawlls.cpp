@@ -1,7 +1,9 @@
 #include <iostream>
 
 using namespace System;
+using namespace System::Collections::Generic;
 using namespace System::IO;
+using namespace System::Text::RegularExpressions;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
 const char* usage_line = "Usage: brawlls [options] filename [path within file]";
@@ -52,6 +54,8 @@ searchChildren = false, // -c
 printMD5 = false; // -m
 MDL0PrintType modelsDeep = SELECTIVE; // --mdl0, --no-mdl0
 
+void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output);
+
 int main(array<System::String ^> ^args) {
 	if (args->Length == 0) {
 		return usage("");
@@ -99,6 +103,59 @@ int main(array<System::String ^> ^args) {
 	if (!File::Exists(filename)) return usage("Error: file not found: " + filename);
 
 	ResourceNode^ node = NodeFactory::FromFile(nullptr, filename);
-	Console::WriteLine(node->Name);
-	delete node;
+	List<ResourceNode^> matchingNodes;
+	if (nodepath == nullptr) {
+		matchingNodes.Add(node);
+	} else if (searchChildren) {
+		matchingNodes.Add(node->FindChild(nodepath, true));
+	} else {
+		nodepath = nodepath->Replace("+", "/+")->Replace("//", "/");
+		while (nodepath->StartsWith("/")) {
+			nodepath = nodepath->Substring(1);
+		}
+		find_children_recursive(node, nodepath, %matchingNodes);
+	}
+
+	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
+	
+	if (printSelf) {
+		for each(ResourceNode^ child in matchingNodes) {
+			Console::WriteLine(child->Name);
+		}
+	} else if (matchingNodes.Count == 1) {
+		Console::WriteLine(matchingNodes[0]->Name);
+	} else {
+		Console::Error->WriteLine("Error: search matched more than one node. Use --self to list them.");
+		return 1;
+	}
+}
+
+void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output) {
+	if (String::IsNullOrWhiteSpace(nodepath)) {
+		output->Add(root);
+		return;
+	}
+
+	int slashat = nodepath->IndexOf('/');
+	String^ pattern = slashat < 0
+		? nodepath
+		: nodepath->Substring(0, slashat);
+	String^ remainder = slashat < 0
+		? ""
+		: nodepath->Substring(slashat + 1);
+
+	Int32 abs_index;
+	if (pattern->StartsWith("+") && Int32::TryParse(pattern->Substring(1), abs_index)) {
+		find_children_recursive(root->Children[abs_index], remainder, output);
+	} else {
+		String^ rstr = "^" + Regex::Escape(pattern)
+			->Replace("\\*", ".*")
+			->Replace("\\?", ".") + "$";
+		Regex^ exp = gcnew Regex(rstr);
+		for each(ResourceNode^ child in root->Children) {
+			if (exp->IsMatch(child->Name)) {
+				find_children_recursive(child, remainder, output);
+			}
+		}
+	}
 }
