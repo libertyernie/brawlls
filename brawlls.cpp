@@ -147,9 +147,9 @@ int main(array<System::String ^> ^args) {
 	
 	if (format == nullptr) {
 		format = "+%p%i %n " +
-			showtype ? " %t" : "" +
-			boneValues ? " %b" : "" +
-			printMD5 ? " %m" : "";
+			(showtype ? " %t" : "") +
+			(boneValues ? " %b" : "") +
+			(printMD5 ? " %m" : "");
 	}
 
 	if (printSelf) {
