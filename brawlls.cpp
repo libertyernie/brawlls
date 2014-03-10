@@ -16,8 +16,6 @@ const char* usage_help_line = "Run with --help or /? for more information.";
 const char* usage_desc = R"(
 -d, --self  list only the specified nodes, not their children (akin to ls -d)
 -R          list nodes recursively (akin to ls -R)
--t          show node types next to names
--m          show MD5 checksums next to names
 -c          find first child matching path (disables wildcards and + prefixes)
 --help, /?  print this message to stdout
 
@@ -28,6 +26,8 @@ const char* usage_desc = R"(
 The default is to show MDL0 sub-nodes when the node is the working root
 (specified on the command-line) or its name ends in "osition".
 
+-t              show node types next to names
+-m              show MD5 checksums next to names
 --format="..."  define line format - overrides -t, -m, --bone, --no-bone
                 (run "brawlls --formathelp" for more information)
 
@@ -35,21 +35,32 @@ Elements of the inside-file path can be node names, with or without
 wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
 The + character does not need to be preceded by a slash.)";
 
+const char* xall_help = R"(Usage: brawlls [OPTIONS] FILENAME PATH xall OUTPUT-DIR [extension]
+
+The xall command extracts all direct children of a node within FILENAME,
+given by PATH, to the directory OUTPUT-DIR.
+
+-c          find first child matching path (disables wildcards and + prefixes)
+
+Elements of the inside-file path can be node names, with or without
+wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
+The + character does not need to be preceded by a slash.)";
+
 const char* format_help = R"(
-    Default format with -t and -m: %~+%i %n %t %b %m
-    %t appears when -t is specified, %m appears for -m, and %b
-    appears by default (but can be turned off with --no-bone.)
+Default format with -t and -m: %~+%i %n %t %b %m
+%t appears when -t is specified, %m appears for -m, and %b
+appears by default (but can be turned off with --no-bone.)
     
-    Available options for --format:
-    %~  indentation for recursive listing (two spaces for each depth)
-    %i  index of node in parent (you can use this with + prefix in pathname)
-    %n  name of node
-    %p  full path of node inside file
-    %t  type of node
-    %b  trans/rot/scale of MDL0 bones (only appears for MDL0BoneNodes)
-    %m  MD5 checksum of original node data
-    %s  size in bytes of original node data
-    %%  literal % sign)";
+Available options for --format:
+%~  indentation for recursive listing (two spaces for each depth)
+%i  index of node in parent (you can use this with + prefix in pathname)
+%n  name of node
+%p  full path of node inside file
+%t  type of node
+%b  trans/rot/scale of MDL0 bones (only appears for MDL0BoneNodes)
+%m  MD5 checksum of original node data
+%s  size in bytes of original node data
+%%  literal % sign)";
 
 int usage(String^ error_msg) {
 	if (error_msg->Length != 0) Console::Error->WriteLine(error_msg + "\n");
@@ -135,7 +146,11 @@ int main(array<System::String ^> ^args) {
 		}
 	}
 	if (behavior == ProgramBehavior::UNDEFINED) behavior = ProgramBehavior::NORMAL;
-
+	
+	if (behavior == ProgramBehavior::EXTRACT_ALL && behavior_arguments.Count == 0) {
+		Console::Error->WriteLine(gcnew String(xall_help));
+		return 1;
+	}
 	if (filename == nullptr) return usage("Error: no filename given.");
 	if (!File::Exists(filename)) return usage("Error: file not found: " + filename);
 
