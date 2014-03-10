@@ -63,6 +63,7 @@ Boolean isinst(U u) {
 
 void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output);
 void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth);
+void printf_obj(String^ format, String^ prefix, Object^ obj);
 void print_obj(String^ prefix, Object^ obj);
 void print_properties(String^ prefix, ResourceNode^ node);
 
@@ -130,7 +131,8 @@ int main(array<System::String ^> ^args) {
 	
 	if (printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
-			Console::WriteLine(child->Name);
+			//Console::WriteLine(child->Name);
+			printf_obj("%i %n", "", child);
 		}
 	} else if (matchingNodes.Count == 1) {
 		int maxdepth = recursive ? -1 : 1;
@@ -200,22 +202,42 @@ void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdep
 	}
 }
 
-void print_obj(String^ prefix, Object^ obj) {
-	Console::Write(prefix);
-	if (isinst<ResourceNode^>(obj)) Console::Write(((ResourceNode^)obj)->Index + " ");
-	Console::Write(obj == nullptr ? "null" : obj->ToString());
-	if (showtype) Console::Write(" (" + obj->GetType()->Name + ")");
+void printf_obj(String^ format, String^ prefix, Object^ obj) {
+	String^ name = obj == nullptr
+		? "null"
+		: obj->ToString();
+	String^ index = isinst<ResourceNode^>(obj)
+		? ((ResourceNode^)obj)->Index + ""
+		: "";
+	String^ bone = "";
 	if (isinst<MDL0BoneNode^>(obj)) {
 		MDL0BoneNode^ b = (MDL0BoneNode^)obj;
-		Console::Write(" T" + b->Translation);
-		Console::Write(" R" + b->Rotation);
-		Console::Write(" S" + b->Scale);
+		bone = "T" + b->Translation;
+		bone += " R" + b->Rotation;
+		bone += " S" + b->Scale;
 	}
-	if (printMD5 && isinst<ResourceNode^>(obj)) {
+	String^ md5;
+	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
-		Console::Write(" MD5:" + md5str(node));
+		md5 = "MD5:" + md5str(node);
 	}
-	Console::WriteLine();
+	String^ line = format
+		->Replace("%p", prefix)
+		->Replace("%n", name)
+		->Replace("%i", index)
+		->Replace("%t", "(" + obj->GetType()->Name + ")")
+		->Replace("%b", bone)
+		->Replace("%m", md5)
+		->Replace("%%", "%");
+	Console::WriteLine(line);
+}
+
+void print_obj(String^ prefix, Object^ obj) {
+	printf_obj("%p%i %n" +
+		(showtype ? " %t" : "") +
+		" %b" +
+		(printMD5 ? " %m" : ""),
+		prefix, obj);
 }
 
 void print_properties(String^ prefix, ResourceNode^ node) {
