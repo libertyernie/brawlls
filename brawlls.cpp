@@ -113,6 +113,11 @@ int main(array<System::String ^> ^args) {
 			Console::WriteLine(gcnew String(format_help));
 			return 0;
 		}
+		if (argument == "--xallhelp") {
+			List<String^> l;
+			l.Add("--help");
+			return extract_all(nullptr, %l);
+		}
 		if (argument == "--self") printSelf = true;
 		else if (argument == "--stpm") stpmValues = true;
 		else if (argument == "--no-stpm") stpmValues = false;
