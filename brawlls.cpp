@@ -16,7 +16,7 @@ const char* usage_help_line = "Run with --help or /? for more information.";
 const char* usage_desc = R"(
 -d, --self  list only the specified nodes, not their children (akin to ls -d)
 -R          list nodes recursively (akin to ls -R)
--c          find first child matching path (disables wildcards and + prefixes)
+-c          find first path that matches (disables wildcards and + prefixes)
 --help, /?  print this message to stdout
 
 --no-stpm  don't list STPM values (default is --stpm)
@@ -28,7 +28,9 @@ The default is to show MDL0 sub-nodes when the node is the working root
 
 -t              show node types next to names
 -m              show MD5 checksums next to names
---format="..."  define line format - overrides -t, -m, --bone, --no-bone
+--full-path     show full path instead of name
+--format="..."  define line format
+                (overrides -t, -m, --bone, --no-bone, and --full-path)
                 (run "brawlls --formathelp" for more information)
 
 Elements of the inside-file path can be node names, with or without
@@ -40,11 +42,16 @@ const char* xall_help = R"(Usage: brawlls [OPTIONS] FILENAME PATH xall OUTPUT-DI
 The xall command extracts all direct children of a node within FILENAME,
 given by PATH, to the directory OUTPUT-DIR.
 
--c          find first child matching path (disables wildcards and + prefixes)
+The -c option is the only brawlls option that can be used with xall.
 
 Elements of the inside-file path can be node names, with or without
 wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
-The + character does not need to be preceded by a slash.)";
+The + character does not need to be preceded by a slash.
+
+Example:
+mkdir outdir
+brawlls common5.pac sc_selmap_en/*80]/Tex* # lists all textures
+brawlls common5.pac sc_selmap_en/*80]/Tex* xall outdir png # extract to folder)";
 
 const char* format_help = R"(
 Default format with -t and -m: %~+%i %n %t %b %m
@@ -77,13 +84,17 @@ enum class ProgramBehavior {
 	UNDEFINED, NORMAL, EXTRACT_ALL
 };
 
+// affects printout only
 bool recursive = false, // -R
 stpmValues = true, // --stpm, --no-stpm
 boneValues = true, // --bone, --no-bone
 showtype = false, // -t
 printSelf = false, // -d, --self
-searchChildren = false, // -c
-printMD5 = false; // -m
+printMD5 = false, // -m
+fullpath = false; // --full-path
+
+// affects node search
+bool searchChildren = false; // -c
 
 template < class T, class U >
 Boolean isinst(U u) {
@@ -125,6 +136,7 @@ int main(array<System::String ^> ^args) {
 		else if (argument == "--no-bone") boneValues = false;
 		else if (argument == "--mdl0") modelsDeep = MDL0PrintType::ALWAYS;
 		else if (argument == "--no-mdl0") modelsDeep = MDL0PrintType::NEVER;
+		else if (argument == "--full-path") fullpath = true;
 		else if (argument->StartsWith("--format=")) format = argument->Substring(9);
 		else if (argument->StartsWith("-")) {
 			for each(char c in argument->Substring(1)) {
@@ -171,7 +183,8 @@ int main(array<System::String ^> ^args) {
 	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
 	
 	if (format == nullptr) {
-		format = "%~+%i %n" +
+		format = "%~+%i" +
+			(fullpath ? " %p" : " %n") +
 			(showtype ? " %t" : "") +
 			(boneValues ? " %b" : "") +
 			(printMD5 ? " %m" : "");
@@ -187,6 +200,9 @@ int main(array<System::String ^> ^args) {
 	} else {
 		if (behavior == ProgramBehavior::EXTRACT_ALL) {
 			return extract_all(matchingNodes[0], %behavior_arguments);
+		} else if (matchingNodes[0]->Children->Count == 0) {
+			Console::Error->WriteLine("The node " + matchingNodes[0]->Name + " does not have any children.");
+			return 0;
 		} else {
 			int maxdepth = recursive ? -1 : 1;
 			print_recursive(format, "", matchingNodes[0], modelsDeep, true, maxdepth);
