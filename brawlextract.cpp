@@ -5,9 +5,25 @@ using namespace System::IO;
 using System::Collections::Generic::List;
 using BrawlLib::SSBB::ResourceNodes::ResourceNode;
 
+const char* xall_help = R"(Usage: brawlls [OPTIONS] FILENAME PATH xall OUTPUT-DIR [extension]
+
+The xall command extracts all direct children of a node within FILENAME,
+given by PATH, to the directory OUTPUT-DIR.
+
+The -c option is the only brawlls option that can be used with xall.
+
+Elements of the inside-file path can be node names, with or without
+wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
+The + character does not need to be preceded by a slash.
+
+Example:
+mkdir outdir
+brawlls common5.pac sc_selmap_en/*80]/Tex* # lists all textures
+brawlls common5.pac sc_selmap_en/*80]/Tex* xall outdir png # extract to folder)";
+
 int extract_all(ResourceNode^ parent, List<String^>^ args) {
 	if (args->Count == 0) {
-		Console::Error->WriteLine("Cannot extract: no output folder specified.");
+		Console::Error->WriteLine(gcnew String(xall_help));
 		return 1;
 	} else if (parent->Children->Count == 0) {
 		Console::Error->WriteLine("Cannot extract: node " + parent->Name + " has no children.");

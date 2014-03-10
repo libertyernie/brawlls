@@ -1,5 +1,6 @@
 #include "brawlmd5.h"
 #include "brawlextract.h"
+#include "find_children.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -16,7 +17,7 @@ const char* usage_help_line = "Run with --help or /? for more information.";
 const char* usage_desc = R"(
 -d, --self  list only the specified nodes, not their children (akin to ls -d)
 -R          list nodes recursively (akin to ls -R)
--c          find first path that matches (disables wildcards and + prefixes)
+-c          find only the first path that matches (disables wildcards and +s)
 --help, /?  print this message to stdout
 
 --no-stpm  don't list STPM values (default is --stpm)
@@ -36,22 +37,6 @@ The default is to show MDL0 sub-nodes when the node is the working root
 Elements of the inside-file path can be node names, with or without
 wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
 The + character does not need to be preceded by a slash.)";
-
-const char* xall_help = R"(Usage: brawlls [OPTIONS] FILENAME PATH xall OUTPUT-DIR [extension]
-
-The xall command extracts all direct children of a node within FILENAME,
-given by PATH, to the directory OUTPUT-DIR.
-
-The -c option is the only brawlls option that can be used with xall.
-
-Elements of the inside-file path can be node names, with or without
-wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
-The + character does not need to be preceded by a slash.
-
-Example:
-mkdir outdir
-brawlls common5.pac sc_selmap_en/*80]/Tex* # lists all textures
-brawlls common5.pac sc_selmap_en/*80]/Tex* xall outdir png # extract to folder)";
 
 const char* format_help = R"(
 Default format with -t and -m: %~+%i %n %t %b %m
@@ -158,27 +143,13 @@ int main(array<System::String ^> ^args) {
 		}
 	}
 	if (behavior == ProgramBehavior::UNDEFINED) behavior = ProgramBehavior::NORMAL;
-	
-	if (behavior == ProgramBehavior::EXTRACT_ALL && behavior_arguments.Count == 0) {
-		Console::Error->WriteLine(gcnew String(xall_help));
-		return 1;
-	}
+
 	if (filename == nullptr) return usage("Error: no filename given.");
 	if (!File::Exists(filename)) return usage("Error: file not found: " + filename);
 
 	ResourceNode^ node = NodeFactory::FromFile(nullptr, filename);
 	List<ResourceNode^> matchingNodes;
-	if (nodepath == nullptr) {
-		matchingNodes.Add(node);
-	} else if (searchChildren) {
-		matchingNodes.Add(node->FindChild(nodepath, true));
-	} else {
-		nodepath = nodepath->Replace("+", "/+")->Replace("//", "/");
-		while (nodepath->StartsWith("/")) {
-			nodepath = nodepath->Substring(1);
-		}
-		find_children_recursive(node, nodepath, %matchingNodes);
-	}
+	find_children(node, nodepath, %matchingNodes, searchChildren);
 
 	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
 	
@@ -206,36 +177,6 @@ int main(array<System::String ^> ^args) {
 		} else {
 			int maxdepth = recursive ? -1 : 1;
 			print_recursive(format, "", matchingNodes[0], modelsDeep, true, maxdepth);
-		}
-	}
-}
-
-void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output) {
-	if (String::IsNullOrWhiteSpace(nodepath)) {
-		output->Add(root);
-		return;
-	}
-
-	int slashat = nodepath->IndexOf('/');
-	String^ pattern = slashat < 0
-		? nodepath
-		: nodepath->Substring(0, slashat);
-	String^ remainder = slashat < 0
-		? ""
-		: nodepath->Substring(slashat + 1);
-
-	Int32 abs_index;
-	if (pattern->StartsWith("+") && Int32::TryParse(pattern->Substring(1), abs_index)) {
-		find_children_recursive(root->Children[abs_index], remainder, output);
-	} else {
-		String^ rstr = "^" + Regex::Escape(pattern)
-			->Replace("\\*", ".*")
-			->Replace("\\?", ".") + "$";
-		Regex^ exp = gcnew Regex(rstr);
-		for each(ResourceNode^ child in root->Children) {
-			if (exp->IsMatch(child->Name)) {
-				find_children_recursive(child, remainder, output);
-			}
 		}
 	}
 }

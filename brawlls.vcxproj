@@ -88,6 +88,7 @@
     <ClCompile Include="brawlextract.cpp" />
     <ClCompile Include="brawlls.cpp" />
     <ClCompile Include="brawlmd5.cpp" />
+    <ClCompile Include="find_children.cpp" />
     <ClCompile Include="md5.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +99,7 @@
   <ItemGroup>
     <ClInclude Include="brawlextract.h" />
     <ClInclude Include="brawlmd5.h" />
+    <ClInclude Include="find_children.h" />
     <ClInclude Include="md5.h" />
   </ItemGroup>
   <ItemGroup>

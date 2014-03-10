@@ -30,6 +30,9 @@
     <ClCompile Include="brawlextract.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="find_children.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="brawlmd5.h">
@@ -39,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="brawlextract.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="find_children.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
