@@ -5,6 +5,14 @@ using namespace System;
 using namespace System::Text;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
+String^ md5str(void* addr, int len) {
+	return BrawlLS::Methods::MD5Str(addr, len);
+}
+
+String^ md5str(ResourceNode^ node) {
+	return BrawlLS::Methods::MD5Str(node);
+}
+
 String^ BrawlLS::Methods::MD5Str(void* addr, int len) {
 	MD5_CTX context;
 	MD5_Init(&context);

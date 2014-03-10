@@ -1,8 +1,10 @@
-#include <iostream>
+#include "brawlmd5.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
+using namespace System::ComponentModel;
 using namespace System::IO;
+using namespace System::Reflection;
 using namespace System::Text::RegularExpressions;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
@@ -61,6 +63,8 @@ Boolean isinst(U u) {
 
 void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output);
 void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth);
+void print_obj(String^ prefix, Object^ obj);
+void print_properties(String^ prefix, ResourceNode^ node);
 
 int main(array<System::String ^> ^args) {
 	if (args->Length == 0) {
@@ -169,15 +173,15 @@ void find_children_recursive(ResourceNode^ root, String^ nodepath, List<Resource
 
 void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth) {
 	if (!isRoot) {
-		//print_obj_name(prefix, node);
-		Console::WriteLine(prefix + node->Name);
+		print_obj(prefix, node);
+		//Console::WriteLine(prefix + node->Name);
 		prefix += "  ";
 	}
 
 	if (maxdepth == 0) return;
 
 	if (isinst<STPMEntryNode^>(node) && stpmValues) {
-		//print_stpm(prefix, node);
+		print_properties(prefix, node);
 	} else {
 		if (isinst<MDL0Node^>(node)) {
 			if (modelsDeep == NEVER) {
@@ -192,6 +196,38 @@ void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdep
 			: maxdepth - 1;
 		for each(ResourceNode^ child in node->Children) {
 			print_recursive(prefix, child, false, newdepth);
+		}
+	}
+}
+
+void print_obj(String^ prefix, Object^ obj) {
+	Console::Write(prefix);
+	if (isinst<ResourceNode^>(obj)) Console::Write(((ResourceNode^)obj)->Index + " ");
+	Console::Write(obj == nullptr ? "null" : obj->ToString());
+	if (showtype) Console::Write(" (" + obj->GetType()->Name + ")");
+	if (isinst<MDL0BoneNode^>(obj)) {
+		MDL0BoneNode^ b = (MDL0BoneNode^)obj;
+		Console::Write(" T" + b->Translation);
+		Console::Write(" R" + b->Rotation);
+		Console::Write(" S" + b->Scale);
+	}
+	if (printMD5 && isinst<ResourceNode^>(obj)) {
+		ResourceNode^ node = (ResourceNode^)obj;
+		Console::Write(" MD5:" + md5str(node));
+	}
+	Console::WriteLine();
+}
+
+void print_properties(String^ prefix, ResourceNode^ node) {
+	for each(PropertyInfo^ entry in node->GetType()->GetProperties()) {
+		for each(Attribute^ attribute in entry->GetCustomAttributes(false)) {
+			if (isinst<CategoryAttribute^>(attribute)) {
+				Object^ val = entry->GetValue(node, nullptr);
+				String^ valstr = val == nullptr
+					? "null"
+					: val->ToString();
+				Console::WriteLine(prefix + entry->Name + " " + valstr);
+			}
 		}
 	}
 }

@@ -1,3 +1,8 @@
+// For easier access from within C++
+System::String^ md5str(void* addr, int len);
+System::String^ md5str(BrawlLib::SSBB::ResourceNodes::ResourceNode^ node);
+
+// For visibility in other languages (C#, Visual Basic) if needed
 namespace BrawlLS {
 	public ref class Methods {
 	public:
