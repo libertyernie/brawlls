@@ -36,14 +36,15 @@ wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
 The + character does not need to be preceded by a slash.)";
 
 const char* format_help = R"(
-    Default format with -t and -m: +%p%i %n %t %b %m
+    Default format with -t and -m: %~+%i %n %t %b %m
     %t appears when -t is specified, %m appears for -m, and %b
     appears by default (but can be turned off with --no-bone.)
     
     Available options for --format:
-    %p  whitespace prefix for recursive listing (two spaces for each depth)
+    %~  indentation for recursive listing (two spaces for each depth)
     %i  index of node in parent (you can use this with + prefix in pathname)
     %n  name of node
+    %p  full path of node inside file
     %t  type of node
     %b  trans/rot/scale of MDL0 bones (only appears for MDL0BoneNodes)
     %m  MD5 checksum of original node data
@@ -155,7 +156,7 @@ int main(array<System::String ^> ^args) {
 	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
 	
 	if (format == nullptr) {
-		format = "+%p%i %n" +
+		format = "%~+%i %n" +
 			(showtype ? " %t" : "") +
 			(boneValues ? " %b" : "") +
 			(printMD5 ? " %m" : "");
@@ -166,7 +167,7 @@ int main(array<System::String ^> ^args) {
 			printf_obj(format, "", child);
 		}
 	} else if (matchingNodes.Count > 1) {
-		Console::Error->WriteLine("Error: search matched more than one node. Use -d or --self to list them.");
+		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
 		return 1;
 	} else {
 		if (behavior == ProgramBehavior::EXTRACT_ALL) {
@@ -250,15 +251,22 @@ void printf_obj(String^ format, String^ prefix, Object^ obj) {
 	String^ index = "";
 	String^ md5 = "";
 	String^ size = "";
+	String^ path = "";
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
 		md5 = "MD5:" + MD5::MD5Str(node);
 		index = node->Index + "";
 		size = node->OriginalSource.Length + "";
+		while (node->Parent != nullptr) {
+			path = node->Name + "/" + path;
+			node = node->Parent;
+		}
+		if (path->EndsWith("/")) path = path->Substring(0, path->Length - 1);
 	}
 	String^ line = format
-		->Replace("%p", prefix)
+		->Replace("%~", prefix)
 		->Replace("%n", name)
+		->Replace("%p", path)
 		->Replace("%i", index)
 		->Replace("%t", "(" + obj->GetType()->Name + ")")
 		->Replace("%b", bone)
