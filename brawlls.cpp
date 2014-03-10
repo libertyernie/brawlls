@@ -86,7 +86,6 @@ Boolean isinst(U u) {
 	return dynamic_cast< T >(u) != nullptr;
 }
 
-void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output);
 void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool isRoot, int maxdepth);
 void printf_obj(String^ format, String^ prefix, Object^ obj);
 void print_properties(String^ prefix, ResourceNode^ node);
@@ -161,7 +160,7 @@ int main(array<System::String ^> ^args) {
 			(printMD5 ? " %m" : "");
 	}
 
-	if (printSelf) {
+	if (behavior == ProgramBehavior::NORMAL && printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
 			printf_obj(format, "", child);
 		}
