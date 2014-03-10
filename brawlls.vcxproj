@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="brawlextract.cpp" />
     <ClCompile Include="brawlls.cpp" />
     <ClCompile Include="brawlmd5.cpp" />
     <ClCompile Include="md5.cpp" />
@@ -95,6 +96,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="brawlextract.h" />
     <ClInclude Include="brawlmd5.h" />
     <ClInclude Include="md5.h" />
   </ItemGroup>

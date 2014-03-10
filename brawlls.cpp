@@ -1,4 +1,5 @@
 #include "brawlmd5.h"
+#include "brawlextract.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -13,11 +14,11 @@ const char* usage_line = "Usage: brawlls [options] filename [path within file]";
 const char* usage_help_line = "Run with --help or /? for more information.";
 
 const char* usage_desc = R"(
--d          list only the specified nodes, not their children (akin to ls -d)
+-d, --self  list only the specified nodes, not their children (akin to ls -d)
 -R          list nodes recursively (akin to ls -R)
 -t          show node types next to names
 -m          show MD5 checksums next to names
--c, --self  find first child matching path (disables wildcards and + prefixes)
+-c          find first child matching path (disables wildcards and + prefixes)
 --help, /?  print this message to stdout
 
 --no-stpm  don't list STPM values (default is --stpm)
@@ -56,9 +57,13 @@ int usage(String^ error_msg) {
 	return 1;
 }
 
-typedef enum {
+enum class MDL0PrintType {
 	ALWAYS, NEVER, SELECTIVE
-} MDL0PrintType;
+};
+
+enum class ProgramBehavior {
+	UNDEFINED, NORMAL, EXTRACT
+};
 
 bool recursive = false, // -R
 stpmValues = true, // --stpm, --no-stpm
@@ -67,7 +72,6 @@ showtype = false, // -t
 printSelf = false, // -d, --self
 searchChildren = false, // -c
 printMD5 = false; // -m
-MDL0PrintType modelsDeep = SELECTIVE; // --mdl0, --no-mdl0
 
 template < class T, class U >
 Boolean isinst(U u) {
@@ -75,7 +79,7 @@ Boolean isinst(U u) {
 }
 
 void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output);
-void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth);
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool isRoot, int maxdepth);
 void printf_obj(String^ format, String^ prefix, Object^ obj);
 void print_properties(String^ prefix, ResourceNode^ node);
 
@@ -87,6 +91,9 @@ int main(array<System::String ^> ^args) {
 	String^ filename;
 	String^ nodepath;
 	String^ format;
+	MDL0PrintType modelsDeep = MDL0PrintType::SELECTIVE; // --mdl0, --no-mdl0
+	ProgramBehavior behavior = ProgramBehavior::UNDEFINED;
+	String^ behavior_argument;
 	for each(String^ argument in args) {
 		if (argument == "--help" || argument == "/?") {
 			Console::WriteLine(gcnew String(usage_line));
@@ -102,8 +109,8 @@ int main(array<System::String ^> ^args) {
 		else if (argument == "--no-stpm") stpmValues = false;
 		else if (argument == "--bone") boneValues = true;
 		else if (argument == "--no-bone") boneValues = false;
-		else if (argument == "--mdl0") modelsDeep = ALWAYS;
-		else if (argument == "--no-mdl0") modelsDeep = NEVER;
+		else if (argument == "--mdl0") modelsDeep = MDL0PrintType::ALWAYS;
+		else if (argument == "--no-mdl0") modelsDeep = MDL0PrintType::NEVER;
 		else if (argument->StartsWith("--format=")) format = argument->Substring(9);
 		else if (argument->StartsWith("-")) {
 			for each(char c in argument->Substring(1)) {
@@ -117,15 +124,14 @@ int main(array<System::String ^> ^args) {
 				}
 			}
 		} else {
-			if (nodepath != nullptr) {
-				return usage("Error: too many arguments: " + filename + " " + nodepath + " " + argument);
-			} else if (filename != nullptr) {
-				nodepath = argument;
-			} else {
-				filename = argument;
-			}
+			if (filename == nullptr) filename = argument;
+			else if (nodepath == nullptr) nodepath = argument;
+			else if (behavior == ProgramBehavior::UNDEFINED && argument == "x") behavior = ProgramBehavior::EXTRACT;
+			else if (behavior == ProgramBehavior::EXTRACT) behavior_argument = argument;
+			else return usage("Error: too many arguments: " + filename + " " + nodepath + " " + argument);
 		}
 	}
+	if (behavior == ProgramBehavior::UNDEFINED) behavior = ProgramBehavior::NORMAL;
 
 	if (filename == nullptr) return usage("Error: no filename given.");
 	if (!File::Exists(filename)) return usage("Error: file not found: " + filename);
@@ -147,7 +153,7 @@ int main(array<System::String ^> ^args) {
 	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
 	
 	if (format == nullptr) {
-		format = "+%p%i %n " +
+		format = "+%p%i %n" +
 			(showtype ? " %t" : "") +
 			(boneValues ? " %b" : "") +
 			(printMD5 ? " %m" : "");
@@ -155,11 +161,13 @@ int main(array<System::String ^> ^args) {
 
 	if (printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
-			printf_obj("%i %n", "", child);
+			printf_obj(format, "", child);
 		}
+	} else if (behavior == ProgramBehavior::EXTRACT) {
+		return extract(%matchingNodes, behavior_argument);
 	} else if (matchingNodes.Count == 1) {
 		int maxdepth = recursive ? -1 : 1;
-		print_recursive(format, "", matchingNodes[0], true, maxdepth);
+		print_recursive(format, "", matchingNodes[0], modelsDeep, true, maxdepth);
 	} else {
 		Console::Error->WriteLine("Error: search matched more than one node. Use -d or --self to list them.");
 		return 1;
@@ -196,7 +204,7 @@ void find_children_recursive(ResourceNode^ root, String^ nodepath, List<Resource
 	}
 }
 
-void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth) {
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool isRoot, int maxdepth) {
 	if (!isRoot) {
 		printf_obj(format, prefix, node);
 		prefix += "  ";
@@ -208,9 +216,9 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool is
 		print_properties(prefix, node);
 	} else {
 		if (isinst<MDL0Node^>(node)) {
-			if (modelsDeep == NEVER) {
+			if (modelsDeep == MDL0PrintType::NEVER) {
 				return;
-			} else if (modelsDeep == SELECTIVE && !isRoot && !node->Name->EndsWith("osition")) {
+			} else if (modelsDeep == MDL0PrintType::SELECTIVE && !isRoot && !node->Name->EndsWith("osition")) {
 				return;
 			}
 		}
@@ -219,7 +227,7 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool is
 			? -1
 			: maxdepth - 1;
 		for each(ResourceNode^ child in node->Children) {
-			print_recursive(format, prefix, child, false, newdepth);
+			print_recursive(format, prefix, child, modelsDeep, false, newdepth);
 		}
 	}
 }
