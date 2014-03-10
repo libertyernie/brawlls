@@ -62,7 +62,7 @@ enum class MDL0PrintType {
 };
 
 enum class ProgramBehavior {
-	UNDEFINED, NORMAL, EXTRACT
+	UNDEFINED, NORMAL, EXTRACT_ALL
 };
 
 bool recursive = false, // -R
@@ -92,8 +92,10 @@ int main(array<System::String ^> ^args) {
 	String^ nodepath;
 	String^ format;
 	MDL0PrintType modelsDeep = MDL0PrintType::SELECTIVE; // --mdl0, --no-mdl0
+
 	ProgramBehavior behavior = ProgramBehavior::UNDEFINED;
-	String^ behavior_argument;
+	List<String^> behavior_arguments;
+
 	for each(String^ argument in args) {
 		if (argument == "--help" || argument == "/?") {
 			Console::WriteLine(gcnew String(usage_line));
@@ -126,8 +128,8 @@ int main(array<System::String ^> ^args) {
 		} else {
 			if (filename == nullptr) filename = argument;
 			else if (nodepath == nullptr) nodepath = argument;
-			else if (behavior == ProgramBehavior::UNDEFINED && argument == "x") behavior = ProgramBehavior::EXTRACT;
-			else if (behavior == ProgramBehavior::EXTRACT) behavior_argument = argument;
+			else if (behavior == ProgramBehavior::UNDEFINED && argument == "xall") behavior = ProgramBehavior::EXTRACT_ALL;
+			else if (behavior != ProgramBehavior::UNDEFINED) behavior_arguments.Add(argument);
 			else return usage("Error: too many arguments: " + filename + " " + nodepath + " " + argument);
 		}
 	}
@@ -163,14 +165,16 @@ int main(array<System::String ^> ^args) {
 		for each(ResourceNode^ child in matchingNodes) {
 			printf_obj(format, "", child);
 		}
-	} else if (behavior == ProgramBehavior::EXTRACT) {
-		return extract(%matchingNodes, behavior_argument);
-	} else if (matchingNodes.Count == 1) {
-		int maxdepth = recursive ? -1 : 1;
-		print_recursive(format, "", matchingNodes[0], modelsDeep, true, maxdepth);
-	} else {
+	} else if (matchingNodes.Count > 1) {
 		Console::Error->WriteLine("Error: search matched more than one node. Use -d or --self to list them.");
 		return 1;
+	} else {
+		if (behavior == ProgramBehavior::EXTRACT_ALL) {
+			return extract_all(matchingNodes[0], %behavior_arguments);
+		} else {
+			int maxdepth = recursive ? -1 : 1;
+			print_recursive(format, "", matchingNodes[0], modelsDeep, true, maxdepth);
+		}
 	}
 }
 
