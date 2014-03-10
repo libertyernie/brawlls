@@ -12,29 +12,39 @@ const char* usage_line = "Usage: brawlls [options] filename [path within file]";
 const char* usage_help_line = "Run with --help or /? for more information.";
 
 const char* usage_desc = R"(
-    -d  list only the specified node(s), not their children (akin to ls -d)
-    -R  list nodes recursively (akin to ls -R)
+-d          list only the specified nodes, not their children (akin to ls -d)
+-R          list nodes recursively (akin to ls -R)
+-t          show node types next to names
+-m          show MD5 checksums next to names
+-c, --self  find first child matching path (disables wildcards and + prefixes)
+--help, /?  print this message to stdout
 
-    -t  show node types next to names
-    -m  show MD5 checksums next to names
-    -c  find first child matching path (disables wildcards and + prefixes)
+--no-stpm  don't list STPM values (default is --stpm)
+--no-bone  don't print bone values (default is --bone)
+--mdl0     always list sub-nodes of MDL0 models
+--no-mdl0  never list sub-nodes of MDL0 models
+The default is to show MDL0 sub-nodes when the node is the working root
+(specified on the command-line) or its name ends in "osition".
 
-    --self     alias for -d
-    --help     print this message to stdout
-    /?         print this message to stdout
+--format="..."  define line format - overrides -t, -m, --bone, --no-bone
+                (run "brawlls --formathelp" for more information)
 
-    --stpm     list STPM values as children (default)
-    --no-stpm  don't list STPM values
-    --bone     print values of MDL0 bones on same line (default)
-    --no-bone  don't print bone values
-    --mdl0     always list sub-nodes of MDL0 models
-    --no-mdl0  never list sub-nodes of MDL0 models
-    The default is to show MDL0 sub-nodes when the node is the working root
-    (specified on the command-line) or its name ends in "osition".
+Elements of the inside-file path can be node names, with or without
+wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
+The + character does not need to be preceded by a slash.)";
 
-    Elements of the inside-file path can be node names, with or without
-    wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
-    The + character does not need to be preceded by a slash.)";
+const char* format_help = R"(
+    Default format with -t and -m: %p%i %n %t %b %m
+    %t appears when -t is specified, %m appears for -m, and %b
+    appears by default (but can be turned off with --no-bone.)
+    
+    Available options for --format:
+    %p  whitespace prefix for recursive listing (two spaces for each depth)
+    %i  index of node in parent (you can use this with + prefix in pathname)
+    %n  name of node
+    %t  type of node
+    %b  trans/rot/scale of MDL0 bones (only appears for MDL0BoneNodes)
+    %m  MD5 checksum of original node data)";
 
 int usage(String^ error_msg) {
 	if (error_msg->Length != 0) Console::Error->WriteLine(error_msg + "\n");
@@ -62,9 +72,8 @@ Boolean isinst(U u) {
 }
 
 void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output);
-void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth);
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth);
 void printf_obj(String^ format, String^ prefix, Object^ obj);
-void print_obj(String^ prefix, Object^ obj);
 void print_properties(String^ prefix, ResourceNode^ node);
 
 int main(array<System::String ^> ^args) {
@@ -75,10 +84,15 @@ int main(array<System::String ^> ^args) {
 
 	String^ filename;
 	String^ nodepath;
+	String^ format;
 	for each(String^ argument in args) {
 		if (argument == "--help" || argument == "/?") {
 			Console::WriteLine(gcnew String(usage_line));
 			Console::WriteLine(gcnew String(usage_desc));
+			return 0;
+		}
+		if (argument == "--formathelp") {
+			Console::WriteLine(gcnew String(format_help));
 			return 0;
 		}
 		if (argument == "--self") printSelf = true;
@@ -88,6 +102,7 @@ int main(array<System::String ^> ^args) {
 		else if (argument == "--no-bone") boneValues = false;
 		else if (argument == "--mdl0") modelsDeep = ALWAYS;
 		else if (argument == "--no-mdl0") modelsDeep = NEVER;
+		else if (argument->StartsWith("--format=")) format = argument->Substring(9);
 		else if (argument->StartsWith("-")) {
 			for each(char c in argument->Substring(1)) {
 				if (c == 'd') printSelf = true;
@@ -129,14 +144,20 @@ int main(array<System::String ^> ^args) {
 
 	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
 	
+	if (format == nullptr) {
+		format = "%p%i %n " +
+			showtype ? " %t" : "" +
+			boneValues ? " %b" : "" +
+			printMD5 ? " %m" : "";
+	}
+
 	if (printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
-			//Console::WriteLine(child->Name);
 			printf_obj("%i %n", "", child);
 		}
 	} else if (matchingNodes.Count == 1) {
 		int maxdepth = recursive ? -1 : 1;
-		print_recursive("", matchingNodes[0], true, maxdepth);
+		print_recursive(format, "", matchingNodes[0], true, maxdepth);
 	} else {
 		Console::Error->WriteLine("Error: search matched more than one node. Use --self to list them.");
 		return 1;
@@ -173,10 +194,9 @@ void find_children_recursive(ResourceNode^ root, String^ nodepath, List<Resource
 	}
 }
 
-void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth) {
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool isRoot, int maxdepth) {
 	if (!isRoot) {
-		print_obj(prefix, node);
-		//Console::WriteLine(prefix + node->Name);
+		printf_obj(format, prefix, node);
 		prefix += "  ";
 	}
 
@@ -197,7 +217,7 @@ void print_recursive(String^ prefix, ResourceNode^ node, bool isRoot, int maxdep
 			? -1
 			: maxdepth - 1;
 		for each(ResourceNode^ child in node->Children) {
-			print_recursive(prefix, child, false, newdepth);
+			print_recursive(format, prefix, child, false, newdepth);
 		}
 	}
 }
@@ -230,14 +250,6 @@ void printf_obj(String^ format, String^ prefix, Object^ obj) {
 		->Replace("%m", md5)
 		->Replace("%%", "%");
 	Console::WriteLine(line);
-}
-
-void print_obj(String^ prefix, Object^ obj) {
-	printf_obj("%p%i %n" +
-		(showtype ? " %t" : "") +
-		" %b" +
-		(printMD5 ? " %m" : ""),
-		prefix, obj);
 }
 
 void print_properties(String^ prefix, ResourceNode^ node) {
