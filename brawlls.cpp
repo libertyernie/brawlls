@@ -245,8 +245,14 @@ void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ o
 	String^ path = "";
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
-		if (format->Contains("%m")) {
-			// don't do this if we don't need the data - this does save some time
+		if (format->Contains("%m")) { // don't do this if we don't need the data - this does save some time
+			/*if (isinst<MDL0GroupNode^>(node)) {
+				md5 = "Children:";
+				for each(ResourceNode^ child in node->Children) {
+					md5 += MD5::MD5Str(child)->Substring(0,4) + ",";
+				}
+			} else {*/
+			// note: mdl0groupnode md5sums always end up the same, so they won't show up in sdiff
 			md5 = "MD5:" + MD5::MD5Str(node);
 		}
 		index = node->Index + "";
