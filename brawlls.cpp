@@ -1,5 +1,6 @@
 #include "brawlmd5.h"
 #include "brawlextract.h"
+#include "brawlsdiff.h"
 #include "find_children.h"
 
 using namespace System;
@@ -66,7 +67,7 @@ enum class MDL0PrintType {
 };
 
 enum class ProgramBehavior {
-	UNDEFINED, NORMAL, EXTRACT_ALL
+	UNDEFINED, NORMAL, EXTRACT_ALL, SDIFF
 };
 
 template < class T, class U >
@@ -142,13 +143,22 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 			}
 		} else {
 			if (filename == nullptr) filename = argument;
-			else if (nodepath == nullptr) nodepath = argument;
 			else if (behavior == ProgramBehavior::UNDEFINED && argument == "xall") behavior = ProgramBehavior::EXTRACT_ALL;
+			else if (behavior == ProgramBehavior::UNDEFINED && argument == "sdiff") behavior = ProgramBehavior::SDIFF;
 			else if (behavior != ProgramBehavior::UNDEFINED) behavior_arguments.Add(argument);
+			else if (nodepath == nullptr) nodepath = argument;
 			else return usage("Error: too many arguments: " + filename + " " + nodepath + " " + argument);
 		}
 	}
 	if (behavior == ProgramBehavior::UNDEFINED) behavior = ProgramBehavior::NORMAL;
+
+	if (behavior == ProgramBehavior::SDIFF) {
+		if (behavior_arguments.Count < 1 || behavior_arguments.Count > 2) return 1;
+		int width = behavior_arguments.Count == 2
+			? Int32::Parse(behavior_arguments[1])
+			: -1;
+		return brawlsdiff(filename, behavior_arguments[0], width);
+	}
 
 	if (filename == nullptr) return usage("Error: no filename given.");
 	if (!File::Exists(filename)) return usage("Error: file not found: " + filename);

@@ -90,6 +90,7 @@
     <ClCompile Include="brawlmd5.cpp" />
     <ClCompile Include="find_children.cpp" />
     <ClCompile Include="md5.cpp" />
+    <ClCompile Include="brawlsdiff.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\brawltools\BrawlLib\BrawlLib.csproj">
@@ -98,7 +99,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="brawlextract.h" />
+    <ClInclude Include="brawlls.h" />
     <ClInclude Include="brawlmd5.h" />
+    <ClInclude Include="brawlsdiff.h" />
     <ClInclude Include="find_children.h" />
     <ClInclude Include="md5.h" />
   </ItemGroup>
