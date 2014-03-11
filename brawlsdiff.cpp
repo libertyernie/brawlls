@@ -28,8 +28,8 @@ int brawlsdiff(String^ filename1, String^ filename2, int console_width) {
 	delete s2;
 	ProcessStartInfo psi;
 	psi.FileName = "sdiff";
-	psi.Arguments = "-s " + f1 + " " + f2;
-	if (console_width >= 0) psi.Arguments += " -w" + console_width;
+	psi.Arguments = "--strip-trailing-cr -t -s " + f1 + " " + f2;
+	if (console_width >= 0) psi.Arguments += " -w " + console_width;
 	psi.UseShellExecute = false;
 	//psi.EnvironmentVariables["CYGWIN"] += "nodosfilewarning";
 	int exitcode;
