@@ -69,24 +69,12 @@ enum class ProgramBehavior {
 	UNDEFINED, NORMAL, EXTRACT_ALL
 };
 
-// affects printout only
-bool recursive = false, // -R
-stpmValues = true, // --stpm, --no-stpm
-boneValues = true, // --bone, --no-bone
-showtype = false, // -t
-printSelf = false, // -d, --self
-printMD5 = false, // -m
-fullpath = false; // --full-path
-
-// affects node search
-bool searchChildren = false; // -c
-
 template < class T, class U >
 Boolean isinst(U u) {
 	return dynamic_cast< T >(u) != nullptr;
 }
 
-void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool isRoot, int maxdepth);
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth);
 void printf_obj(String^ format, String^ prefix, Object^ obj);
 void print_properties(String^ prefix, ResourceNode^ node);
 
@@ -100,8 +88,20 @@ int main(array<System::String ^> ^args) {
 	String^ format;
 	MDL0PrintType modelsDeep = MDL0PrintType::SELECTIVE; // --mdl0, --no-mdl0
 
+	// affects printout only
+	bool recursive = false, // -R
+		stpmValues = true, // --stpm, --no-stpm
+		boneValues = true, // --bone, --no-bone
+		showtype = false, // -t
+		printSelf = false, // -d, --self
+		printMD5 = false, // -m
+		fullpath = false; // --full-path
+
+	// affects node search
+	bool searchChildren = false; // -c
+
 	ProgramBehavior behavior = ProgramBehavior::UNDEFINED;
-	List<String^> behavior_arguments;
+	List<String^> behavior_arguments; // arguments not otherwise defined that come after the behavior
 
 	for each(String^ argument in args) {
 		if (argument == "--help" || argument == "/?") {
@@ -151,12 +151,6 @@ int main(array<System::String ^> ^args) {
 	if (filename == nullptr) return usage("Error: no filename given.");
 	if (!File::Exists(filename)) return usage("Error: file not found: " + filename);
 
-	ResourceNode^ node = NodeFactory::FromFile(nullptr, filename);
-	List<ResourceNode^> matchingNodes;
-	find_children(node, nodepath, %matchingNodes, searchChildren);
-
-	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
-	
 	if (format == nullptr) {
 		format = "%~+%i" +
 			(fullpath ? " %p" : " %n") +
@@ -165,6 +159,12 @@ int main(array<System::String ^> ^args) {
 			(printMD5 ? " %m" : "");
 	}
 
+	ResourceNode^ node = NodeFactory::FromFile(nullptr, filename);
+	List<ResourceNode^> matchingNodes;
+	find_children(node, nodepath, %matchingNodes, searchChildren);
+
+	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
+
 	if (behavior == ProgramBehavior::NORMAL && printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
 			printf_obj(format, "", child);
@@ -172,20 +172,18 @@ int main(array<System::String ^> ^args) {
 	} else if (matchingNodes.Count > 1) {
 		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
 		return 1;
+	} else if (behavior == ProgramBehavior::EXTRACT_ALL) {
+		return extract_all(matchingNodes[0], %behavior_arguments);
+	} else if (matchingNodes[0]->Children->Count == 0) {
+		Console::Error->WriteLine("The node " + matchingNodes[0]->Name + " does not have any children.");
+		return 0;
 	} else {
-		if (behavior == ProgramBehavior::EXTRACT_ALL) {
-			return extract_all(matchingNodes[0], %behavior_arguments);
-		} else if (matchingNodes[0]->Children->Count == 0) {
-			Console::Error->WriteLine("The node " + matchingNodes[0]->Name + " does not have any children.");
-			return 0;
-		} else {
-			int maxdepth = recursive ? -1 : 1;
-			print_recursive(format, "", matchingNodes[0], modelsDeep, true, maxdepth);
-		}
+		int maxdepth = recursive ? -1 : 1;
+		print_recursive(format, "", matchingNodes[0], modelsDeep, stpmValues, true, maxdepth);
 	}
 }
 
-void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool isRoot, int maxdepth) {
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth) {
 	if (!isRoot) {
 		printf_obj(format, prefix, node);
 		prefix += "  ";
@@ -208,7 +206,7 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0Pri
 			? -1
 			: maxdepth - 1;
 		for each(ResourceNode^ child in node->Children) {
-			print_recursive(format, prefix, child, modelsDeep, false, newdepth);
+			print_recursive(format, prefix, child, modelsDeep, stpmValues, false, newdepth);
 		}
 	}
 }
