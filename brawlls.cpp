@@ -74,9 +74,11 @@ Boolean isinst(U u) {
 	return dynamic_cast< T >(u) != nullptr;
 }
 
-void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth);
-void printf_obj(String^ format, String^ prefix, Object^ obj);
-void print_properties(String^ prefix, ResourceNode^ node);
+void print_recursive(TextWriter^ outstream,
+	String^ format, String^ prefix, ResourceNode^ node,
+	MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth);
+void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ obj);
+void print_properties(TextWriter^ outstream, String^ prefix, ResourceNode^ node);
 
 int main(array<System::String ^> ^args) {
 	if (args->Length == 0) {
@@ -165,9 +167,10 @@ int main(array<System::String ^> ^args) {
 
 	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
 
+	TextWriter^ outstream = Console::Out;
 	if (behavior == ProgramBehavior::NORMAL && printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
-			printf_obj(format, "", child);
+			printf_obj(outstream, format, "", child);
 		}
 	} else if (matchingNodes.Count > 1) {
 		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
@@ -179,20 +182,20 @@ int main(array<System::String ^> ^args) {
 		return 0;
 	} else {
 		int maxdepth = recursive ? -1 : 1;
-		print_recursive(format, "", matchingNodes[0], modelsDeep, stpmValues, true, maxdepth);
+		print_recursive(outstream, format, "", matchingNodes[0], modelsDeep, stpmValues, true, maxdepth);
 	}
 }
 
-void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth) {
+void print_recursive(TextWriter^ outstream, String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth) {
 	if (!isRoot) {
-		printf_obj(format, prefix, node);
+		printf_obj(outstream, format, prefix, node);
 		prefix += "  ";
 	}
 
 	if (maxdepth == 0) return;
 
 	if (isinst<STPMEntryNode^>(node) && stpmValues) {
-		print_properties(prefix, node);
+		print_properties(outstream, prefix, node);
 	} else {
 		if (isinst<MDL0Node^>(node)) {
 			if (modelsDeep == MDL0PrintType::NEVER) {
@@ -206,13 +209,13 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0Pri
 			? -1
 			: maxdepth - 1;
 		for each(ResourceNode^ child in node->Children) {
-			print_recursive(format, prefix, child, modelsDeep, stpmValues, false, newdepth);
+			print_recursive(outstream, format, prefix, child, modelsDeep, stpmValues, false, newdepth);
 		}
 	}
 	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
 }
 
-void printf_obj(String^ format, String^ prefix, Object^ obj) {
+void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ obj) {
 	String^ name = obj == nullptr
 		? "null"
 		: obj->ToString();
@@ -251,10 +254,10 @@ void printf_obj(String^ format, String^ prefix, Object^ obj) {
 		->Replace("%m", md5)
 		->Replace("%s", size)
 		->Replace("%%", "%");
-	Console::WriteLine(line);
+	outstream->WriteLine(line);
 }
 
-void print_properties(String^ prefix, ResourceNode^ node) {
+void print_properties(TextWriter^ outstream, String^ prefix, ResourceNode^ node) {
 	for each(PropertyInfo^ entry in node->GetType()->GetProperties()) {
 		for each(Attribute^ attribute in entry->GetCustomAttributes(false)) {
 			if (isinst<CategoryAttribute^>(attribute)) {
@@ -262,7 +265,7 @@ void print_properties(String^ prefix, ResourceNode^ node) {
 				String^ valstr = val == nullptr
 					? "null"
 					: val->ToString();
-				Console::WriteLine(prefix + entry->Name + " " + valstr);
+				outstream->WriteLine(prefix + entry->Name + " " + valstr);
 			}
 		}
 	}
