@@ -80,7 +80,7 @@ void print_recursive(TextWriter^ outstream,
 void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ obj);
 void print_properties(TextWriter^ outstream, String^ prefix, ResourceNode^ node);
 
-int main(array<System::String ^> ^args) {
+int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 	if (args->Length == 0) {
 		return usage("");
 	}
@@ -167,10 +167,9 @@ int main(array<System::String ^> ^args) {
 
 	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
 
-	TextWriter^ outstream = Console::Out;
 	if (behavior == ProgramBehavior::NORMAL && printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
-			printf_obj(outstream, format, "", child);
+			printf_obj(outwriter, format, "", child);
 		}
 	} else if (matchingNodes.Count > 1) {
 		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
@@ -182,8 +181,12 @@ int main(array<System::String ^> ^args) {
 		return 0;
 	} else {
 		int maxdepth = recursive ? -1 : 1;
-		print_recursive(outstream, format, "", matchingNodes[0], modelsDeep, stpmValues, true, maxdepth);
+		print_recursive(outwriter, format, "", matchingNodes[0], modelsDeep, stpmValues, true, maxdepth);
 	}
+}
+
+int main(array<String^>^ args) {
+	brawlls(args, Console::Out);
 }
 
 void print_recursive(TextWriter^ outstream, String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth) {
