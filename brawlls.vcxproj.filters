@@ -33,9 +33,6 @@
     <ClCompile Include="find_children.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="brawlsdiff.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="brawlmd5.h">
@@ -50,16 +47,11 @@
     <ClInclude Include="find_children.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="brawlsdiff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="brawlls.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
     <None Include="LICENSE" />
     <None Include=".gitignore" />
+    <None Include="brawlsdiff.sh" />
   </ItemGroup>
 </Project>
