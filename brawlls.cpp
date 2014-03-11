@@ -209,6 +209,7 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0Pri
 			print_recursive(format, prefix, child, modelsDeep, stpmValues, false, newdepth);
 		}
 	}
+	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
 }
 
 void printf_obj(String^ format, String^ prefix, Object^ obj) {
