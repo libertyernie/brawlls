@@ -130,7 +130,7 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 		else if (argument == "--no-mdl0") modelsDeep = MDL0PrintType::NEVER;
 		else if (argument == "--full-path") fullpath = true;
 		else if (argument->StartsWith("--format=")) format = argument->Substring(9);
-		else if (argument->StartsWith("-")) {
+		else if (argument->StartsWith("-") && argument->Length > 1) {
 			for each(char c in argument->Substring(1)) {
 				if (c == 'd') printSelf = true;
 				else if (c == 'R') recursive = true;
@@ -151,6 +151,19 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 		}
 	}
 	if (behavior == ProgramBehavior::UNDEFINED) behavior = ProgramBehavior::NORMAL;
+
+	if (filename == "-") {
+		String^ tmpfile = Path::GetTempFileName();
+		Stream^ stdin = Console::OpenStandardInput();
+		Stream^ outstream = gcnew FileStream(tmpfile, FileMode::Create, FileAccess::Write);
+		array<unsigned char>^ buffer = gcnew array<unsigned char>(2048);
+		int bytes;
+		while ((bytes = stdin->Read(buffer, 0, buffer->Length)) > 0) {
+			outstream->Write(buffer, 0, bytes);
+		}
+		outstream->Close();
+		filename = tmpfile;
+	}
 
 	if (behavior == ProgramBehavior::SDIFF) {
 		if (behavior_arguments.Count < 1 || behavior_arguments.Count > 2) return 1;
