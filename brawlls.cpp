@@ -228,7 +228,10 @@ void printf_obj(String^ format, String^ prefix, Object^ obj) {
 	String^ path = "";
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
-		md5 = "MD5:" + MD5::MD5Str(node);
+		if (format->Contains("%m")) {
+			// don't do this if we don't need the data - this does save some time
+			md5 = "MD5:" + MD5::MD5Str(node);
+		}
 		index = node->Index + "";
 		size = node->OriginalSource.Length + "";
 		while (node->Parent != nullptr) {
