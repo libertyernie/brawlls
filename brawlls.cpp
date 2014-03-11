@@ -19,6 +19,7 @@ const char* usage_desc = R"(
 -R          list nodes recursively (akin to ls -R)
 -c          find only the first path that matches (disables wildcards and +s)
 --help, /?  print this message to stdout
+--xallhelp  info about the "xall" command
 
 --no-stpm  don't list STPM values (default is --stpm)
 --no-bone  don't print bone values (default is --bone)
@@ -30,9 +31,8 @@ The default is to show MDL0 sub-nodes when the node is the working root
 -t              show node types next to names
 -m              show MD5 checksums next to names
 --full-path     show full path instead of name
---format="..."  define line format
-                (overrides -t, -m, --bone, --no-bone, and --full-path)
-                (run "brawlls --formathelp" for more information)
+--format="..."  overrides -t, -m, --bone, --no-bone, and --full-path;
+                run "brawlls --formathelp" for more information
 
 Elements of the inside-file path can be node names, with or without
 wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
