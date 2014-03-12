@@ -80,8 +80,6 @@ void print_recursive(TextWriter^ outstream,
 void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ obj);
 void print_properties(TextWriter^ outstream, String^ prefix, ResourceNode^ node);
 
-bool md5export = false; // --md5-export
-
 int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 	if (args->Length == 0) {
 		return usage("");
@@ -129,7 +127,6 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 		else if (argument == "--no-bone") boneValues = false;
 		else if (argument == "--mdl0") modelsDeep = MDL0PrintType::ALWAYS;
 		else if (argument == "--no-mdl0") modelsDeep = MDL0PrintType::NEVER;
-		else if (argument == "--md5-export") md5export = true;
 		else if (argument == "--full-path") fullpath = true;
 		else if (argument->StartsWith("--format=")) format = argument->Substring(9);
 		else if (argument->StartsWith("-") && argument->Length > 1) {
@@ -255,10 +252,10 @@ void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ o
 			if (isinst<MDL0GroupNode^>(node) || isinst<BRESGroupNode^>(node)) {
 				// concat children data and use that instead
 				md5 = "Children:" + MD5::MD5Str(node->Children, 0);
-			} else if (md5export && isinst<BRESEntryNode^>(node)) {
+			} else if (isinst<BRESEntryNode^>(node)) {
 				String^ tmp = Path::GetTempFileName();
 				node->Export(tmp);
-				md5 = "MD5++:" + MD5::MD5Str(tmp);
+				md5 = "MD5(Ex):" + MD5::MD5Str(tmp);
 				File::Delete(tmp);
 			} else {
 				md5 = "MD5:" + MD5::MD5Str(node, 0);
