@@ -1,6 +1,7 @@
 #include "brawlmd5.h"
 #include "brawlextract.h"
 #include "find_children.h"
+#include "usage.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -10,49 +11,6 @@ using namespace System::Reflection;
 using namespace System::Text::RegularExpressions;
 using namespace BrawlLib::SSBB::ResourceNodes;
 using BrawlLS::MD5;
-
-const char* usage_line = "Usage: brawlls [options] filename [path within file]";
-const char* usage_help_line = "Run with --help or /? for more information.";
-
-const char* usage_desc = R"(
--d, --self  list only the specified nodes, not their children (akin to ls -d)
--R          list nodes recursively (akin to ls -R)
--c          find only the first path that matches (disables wildcards and +s)
---help, /?  print this message to stdout
---xallhelp  info about the "xall" command
-
---no-stpm  don't list STPM values (default is --stpm)
---no-bone  don't print bone values (default is --bone)
---mdl0     always list sub-nodes of MDL0 models
---no-mdl0  never list sub-nodes of MDL0 models
-The default is to show MDL0 sub-nodes when the node is the working root
-(specified on the command-line) or its name ends in "osition".
-
--t              show node types next to names
--m              show MD5 checksums next to names
---full-path     show full path instead of name
---format="..."  overrides -t, -m, --bone, --no-bone, and --full-path;
-                run "brawlls --formathelp" for more information
-
-Elements of the inside-file path can be node names, with or without
-wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
-The + character does not need to be preceded by a slash.)";
-
-const char* format_help = R"(
-Default format with -t and -m: %~+%i %n %t %b %m
-%t appears when -t is specified, %m appears for -m, and %b
-appears by default (but can be turned off with --no-bone.)
-    
-Available options for --format:
-%~  indentation for recursive listing (two spaces for each depth)
-%i  index of node in parent (you can use this with + prefix in pathname)
-%n  name of node
-%p  full path of node inside file
-%t  type of node
-%b  trans/rot/scale of MDL0 bones (only appears for MDL0BoneNodes)
-%m  MD5 checksum of original node data
-%s  size in bytes of original node data
-%%  literal % sign)";
 
 int usage(String^ error_msg) {
 	if (error_msg->Length != 0) Console::Error->WriteLine(error_msg + "\n");
@@ -116,9 +74,8 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 			return 0;
 		}
 		if (argument == "--xallhelp") {
-			List<String^> l;
-			l.Add("--help");
-			return extract_all(nullptr, %l);
+			Console::WriteLine(gcnew String(xall_help));
+			return 0;
 		}
 		if (argument == "--self") printSelf = true;
 		else if (argument == "--stpm") stpmValues = true;
@@ -188,6 +145,11 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
 		return 1;
 	} else if (behavior == ProgramBehavior::EXTRACT_ALL) {
+		if (behavior_arguments.Count == 0) {
+			Console::Error->WriteLine("Error: no output directory specified");
+			Console::Error->WriteLine(gcnew String(xall_help));
+			return 1;
+		}
 		return extract_all(matchingNodes[0], %behavior_arguments);
 	} else if (matchingNodes[0]->Children->Count == 0) {
 		Console::Error->WriteLine("The node " + matchingNodes[0]->Name + " does not have any children.");
