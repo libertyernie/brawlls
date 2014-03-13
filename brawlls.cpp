@@ -1,4 +1,3 @@
-#include "brawlmd5.h"
 #include "brawlextract.h"
 #include "find_children.h"
 #include "usage.h"
@@ -10,7 +9,6 @@ using namespace System::IO;
 using namespace System::Reflection;
 using namespace System::Text::RegularExpressions;
 using namespace BrawlLib::SSBB::ResourceNodes;
-using BrawlLS::MD5;
 
 int usage(String^ error_msg) {
 	if (error_msg->Length != 0) Console::Error->WriteLine(error_msg + "\n");
@@ -211,12 +209,7 @@ void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ o
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
 		if (format->Contains("%m")) { // don't do this if we don't need the data - this does save some time
-			if (isinst<MDL0GroupNode^>(node) || isinst<BRESGroupNode^>(node)) {
-				// concat children data and use that instead
-				md5 = "Children:" + MD5::MD5Str(node->Children);
-			} else {
-				md5 = "MD5:" + MD5::MD5Str(node);
-			}
+			md5 = "MD5:" + node->MD5Str();
 		}
 		index = node->Index + "";
 		size = node->OriginalSource.Length + "";
