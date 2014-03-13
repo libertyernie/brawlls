@@ -214,11 +214,6 @@ void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ o
 			if (isinst<MDL0GroupNode^>(node) || isinst<BRESGroupNode^>(node)) {
 				// concat children data and use that instead
 				md5 = "Children:" + MD5::MD5Str(node->Children);
-			} else if (isinst<BRESEntryNode^>(node)) {
-				String^ tmp = Path::GetTempFileName();
-				node->Export(tmp);
-				md5 = "MD5(Ex):" + MD5::MD5Str(tmp);
-				File::Delete(tmp);
 			} else {
 				md5 = "MD5:" + MD5::MD5Str(node);
 			}
