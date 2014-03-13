@@ -2,3 +2,6 @@
 *.vcxproj.user
 Debug/
 Release/
+
+*.*sdf
+*.suo

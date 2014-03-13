@@ -79,6 +79,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Reference Include="BrawlLib">
+      <HintPath>D:\Users\Isaac\Documents\Visual Studio 2013\Projects\brawltools\BrawlLib\bin\Debug\BrawlLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -90,11 +93,6 @@
     <ClCompile Include="brawlmd5.cpp" />
     <ClCompile Include="find_children.cpp" />
     <ClCompile Include="md5.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\brawltools\BrawlLib\BrawlLib.csproj">
-      <Project>{462d0bbf-ce82-405b-8848-2f91e9e14c55}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="brawlextract.h" />
