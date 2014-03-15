@@ -6,6 +6,8 @@ const char* usage_desc = R"(
 -R          list nodes recursively (akin to ls -R)
 -c          find only the first path that matches (disables wildcards and +s)
 --help, /?  print this message to stdout
+
+--xhelp  info about the "x" command
 --xallhelp  info about the "xall" command
 
 --no-stpm  don't list STPM values (default is --stpm)
@@ -40,6 +42,22 @@ Available options for --format:
 %m  MD5 checksum of original node data
 %s  size in bytes of original node data
 %%  literal % sign)";
+
+const char* x_help = R"(Usage: brawlls [OPTIONS] FILENAME PATH x OUTPUT
+
+The x command extracts the first node matching PATH within FILENAME to the
+file OUTPUT. If OUTPUT starts with a period, it will be treated as the
+extension, and the name of the node will be used as the filename.
+
+The -c option is the only brawlls option that can be used with xall.
+
+Elements of the inside-file path can be node names, with or without
+wildcards (*), or indicies prefixed by "+" (for example, +0 or +17).
+The + character does not need to be preceded by a slash.
+
+Example:
+brawlls common5.pac sc_selmap_en/*80] -d # show the node that gets selected
+brawlls common5.pac sc_selmap_en/*80] x .brres # extract to MiscData[80].brres)";
 
 const char* xall_help = R"(Usage: brawlls [OPTIONS] FILENAME PATH xall OUTPUT-DIR [extension]
 

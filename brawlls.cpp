@@ -22,7 +22,7 @@ enum class MDL0PrintType {
 };
 
 enum class ProgramBehavior {
-	UNDEFINED, NORMAL, EXTRACT_ALL
+	UNDEFINED, NORMAL, EXTRACT, EXTRACT_ALL
 };
 
 template < class T, class U >
@@ -97,6 +97,7 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 			}
 		} else {
 			if (filename == nullptr) filename = argument;
+			else if (behavior == ProgramBehavior::UNDEFINED && argument == "x") behavior = ProgramBehavior::EXTRACT;
 			else if (behavior == ProgramBehavior::UNDEFINED && argument == "xall") behavior = ProgramBehavior::EXTRACT_ALL;
 			else if (behavior != ProgramBehavior::UNDEFINED) behavior_arguments.Add(argument);
 			else if (nodepath == nullptr) nodepath = argument;
@@ -142,13 +143,23 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 	} else if (matchingNodes.Count > 1) {
 		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
 		return 1;
+	} else if (behavior == ProgramBehavior::EXTRACT) {
+		String^ filename = behavior_arguments.Count >= 1 ? behavior_arguments[0] : nullptr;
+		if (filename == nullptr) {
+			Console::Error->WriteLine("Error: no output filename or extension specified");
+			Console::Error->WriteLine(gcnew String(x_help));
+			return 1;
+		}
+		return extract(matchingNodes[0], filename);
 	} else if (behavior == ProgramBehavior::EXTRACT_ALL) {
-		if (behavior_arguments.Count == 0) {
+		String^ dir = behavior_arguments.Count >= 1 ? behavior_arguments[0] : nullptr;
+		String^ ext = behavior_arguments.Count >= 2 ? behavior_arguments[1] : nullptr;
+		if (dir == nullptr) {
 			Console::Error->WriteLine("Error: no output directory specified");
 			Console::Error->WriteLine(gcnew String(xall_help));
 			return 1;
 		}
-		return extract_all(matchingNodes[0], %behavior_arguments);
+		return extract_all(matchingNodes[0], dir, ext);
 	} else if (matchingNodes[0]->Children->Count == 0) {
 		Console::Error->WriteLine("The node " + matchingNodes[0]->Name + " does not have any children.");
 		return 0;

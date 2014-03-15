@@ -1,3 +1,6 @@
+int extract(
+	BrawlLib::SSBB::ResourceNodes::ResourceNode^ node,
+	System::String^ filename);
 int extract_all(
 	BrawlLib::SSBB::ResourceNodes::ResourceNode^ parent,
-	System::Collections::Generic::List<System::String^>^ args);
+	System::String^ dirname, System::String^ ext);
