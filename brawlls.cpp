@@ -1,4 +1,5 @@
 #include "brawlextract.h"
+#include "brawlprintf.h"
 #include "find_children.h"
 #include "usage.h"
 
@@ -33,7 +34,6 @@ Boolean isinst(U u) {
 void print_recursive(TextWriter^ outstream,
 	String^ format, String^ prefix, ResourceNode^ node,
 	MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth);
-void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ obj);
 void print_properties(TextWriter^ outstream, String^ prefix, ResourceNode^ node);
 
 int brawlls(array<String^>^ args, TextWriter^ outwriter) {
@@ -138,7 +138,7 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 
 	if (behavior == ProgramBehavior::NORMAL && printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
-			printf_obj(outwriter, format, "", child);
+			outwriter->WriteLine(format_obj(format, "", child));
 		}
 	} else if (matchingNodes.Count > 1) {
 		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
@@ -166,6 +166,7 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 	} else {
 		int maxdepth = recursive ? -1 : 1;
 		print_recursive(outwriter, format, "", matchingNodes[0], modelsDeep, stpmValues, true, maxdepth);
+		return 0;
 	}
 }
 
@@ -175,7 +176,7 @@ int main(array<String^>^ args) {
 
 void print_recursive(TextWriter^ outstream, String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth) {
 	if (!isRoot) {
-		printf_obj(outstream, format, prefix, node);
+		outstream->WriteLine(format_obj(format, prefix, node));
 		prefix += "  ";
 	}
 
@@ -200,47 +201,6 @@ void print_recursive(TextWriter^ outstream, String^ format, String^ prefix, Reso
 		}
 	}
 	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
-}
-
-void printf_obj(TextWriter^ outstream, String^ format, String^ prefix, Object^ obj) {
-	String^ name = obj == nullptr
-		? "null"
-		: obj->ToString();
-	String^ bone = "";
-	if (isinst<MDL0BoneNode^>(obj)) {
-		MDL0BoneNode^ b = (MDL0BoneNode^)obj;
-		bone = "T" + b->Translation;
-		bone += " R" + b->Rotation;
-		bone += " S" + b->Scale;
-	}
-	String^ index = "";
-	String^ md5 = "";
-	String^ size = "";
-	String^ path = "";
-	if (isinst<ResourceNode^>(obj)) {
-		ResourceNode^ node = (ResourceNode^)obj;
-		if (format->Contains("%m")) { // don't do this if we don't need the data - this does save some time
-			md5 = "MD5:" + node->MD5Str();
-		}
-		index = node->Index + "";
-		size = node->OriginalSource.Length + "";
-		while (node->Parent != nullptr) {
-			path = node->Name + "/" + path;
-			node = node->Parent;
-		}
-		if (path->EndsWith("/")) path = path->Substring(0, path->Length - 1);
-	}
-	String^ line = format
-		->Replace("%~", prefix)
-		->Replace("%n", name)
-		->Replace("%p", path)
-		->Replace("%i", index)
-		->Replace("%t", "(" + obj->GetType()->Name + ")")
-		->Replace("%b", bone)
-		->Replace("%m", md5)
-		->Replace("%s", size)
-		->Replace("%%", "%");
-	outstream->WriteLine(line);
 }
 
 void print_properties(TextWriter^ outstream, String^ prefix, ResourceNode^ node) {
