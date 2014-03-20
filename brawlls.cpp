@@ -170,10 +170,6 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 	}
 }
 
-int main(array<String^>^ args) {
-	brawlls(args, Console::Out);
-}
-
 void print_recursive(TextWriter^ outstream, String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth) {
 	if (!isRoot) {
 		outstream->WriteLine(format_obj(format, prefix, node));

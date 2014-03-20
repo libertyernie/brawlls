@@ -91,11 +91,15 @@
     <ClCompile Include="brawlextract.cpp" />
     <ClCompile Include="brawlls.cpp" />
     <ClCompile Include="brawlprintf.cpp" />
+    <ClCompile Include="brawlsdiff.cpp" />
     <ClCompile Include="find_children.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="brawlextract.h" />
+    <ClInclude Include="brawlls.h" />
     <ClInclude Include="brawlprintf.h" />
+    <ClInclude Include="brawlsdiff.h" />
     <ClInclude Include="find_children.h" />
     <ClInclude Include="usage.h" />
   </ItemGroup>

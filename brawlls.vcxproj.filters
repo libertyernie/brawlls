@@ -30,6 +30,12 @@
     <ClCompile Include="brawlprintf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="brawlsdiff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="brawlextract.h">
@@ -42,6 +48,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="brawlprintf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="brawlls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="brawlsdiff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
