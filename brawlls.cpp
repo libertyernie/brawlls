@@ -5,9 +5,7 @@
 
 using namespace System;
 using namespace System::Collections::Generic;
-using namespace System::ComponentModel;
 using namespace System::IO;
-using namespace System::Reflection;
 using namespace System::Text::RegularExpressions;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
@@ -34,7 +32,6 @@ Boolean isinst(U u) {
 void print_recursive(TextWriter^ outstream,
 	String^ format, String^ prefix, ResourceNode^ node,
 	MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth);
-void print_properties(TextWriter^ outstream, String^ prefix, ResourceNode^ node);
 
 int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 	if (args->Length == 0) {
@@ -179,7 +176,7 @@ void print_recursive(TextWriter^ outstream, String^ format, String^ prefix, Reso
 	if (maxdepth == 0) return;
 
 	if (isinst<STPMEntryNode^>(node) && stpmValues) {
-		print_properties(outstream, prefix, node);
+		outstream->WriteLine(properties_str(prefix, node));
 	} else {
 		if (isinst<MDL0Node^>(node)) {
 			if (modelsDeep == MDL0PrintType::NEVER) {
@@ -197,18 +194,4 @@ void print_recursive(TextWriter^ outstream, String^ format, String^ prefix, Reso
 		}
 	}
 	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
-}
-
-void print_properties(TextWriter^ outstream, String^ prefix, ResourceNode^ node) {
-	for each(PropertyInfo^ entry in node->GetType()->GetProperties()) {
-		for each(Attribute^ attribute in entry->GetCustomAttributes(false)) {
-			if (isinst<CategoryAttribute^>(attribute)) {
-				Object^ val = entry->GetValue(node, nullptr);
-				String^ valstr = val == nullptr
-					? "null"
-					: val->ToString();
-				outstream->WriteLine(prefix + entry->Name + " " + valstr);
-			}
-		}
-	}
 }
