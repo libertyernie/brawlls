@@ -157,6 +157,8 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 			return 1;
 		}
 		return extract_all(matchingNodes[0], dir, ext);
+	} else if (isinst<STPMEntryNode^>(matchingNodes[0])) {
+		outwriter->Write(properties_str("", matchingNodes[0]));
 	} else if (matchingNodes[0]->Children->Count == 0) {
 		Console::Error->WriteLine("The node " + matchingNodes[0]->Name + " does not have any children.");
 		return 0;
@@ -176,7 +178,7 @@ void print_recursive(TextWriter^ outstream, String^ format, String^ prefix, Reso
 	if (maxdepth == 0) return;
 
 	if (isinst<STPMEntryNode^>(node) && stpmValues) {
-		outstream->WriteLine(properties_str(prefix, node));
+		outstream->Write(properties_str(prefix, node));
 	} else {
 		if (isinst<MDL0Node^>(node)) {
 			if (modelsDeep == MDL0PrintType::NEVER) {
