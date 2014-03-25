@@ -183,8 +183,8 @@ int brawlls(array<String^>^ args) {
 		return extract_all(matchingNodes[0], dir, ext);
 	}
 	
-	String^ details = details_str("", node);
-	if (isinst<STPMEntryNode^>(matchingNodes[0])) {
+	String^ details = details_str("", matchingNodes[0]);
+	if (details != nullptr) {
 		Console::Write(details);
 		return 0;
 	} else if (matchingNodes[0]->Children->Count == 0) {

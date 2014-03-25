@@ -80,7 +80,10 @@ String^ stdt_floats_str(String^ prefix, ResourceNode^ node) {
 	float* addr = (float*)(void*)node->UncompressedSource.Address;
 	int length = node->UncompressedSource.Length;
 	for (int i = 5; i < length; i++) {
-		sb.AppendLine(prefix + "0x" + (i*4).ToString("X2") + " " + rv_endian(addr[i]));
+		float rv = rv_endian(addr[i]);
+		sb.AppendLine(prefix +
+			"0x" + (i*4).ToString("X2") + ": " +
+			rv + " / " + *((__int32*)(&rv)));
 	}
 	return sb.ToString();
 }
