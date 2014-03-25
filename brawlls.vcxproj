@@ -79,9 +79,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Reference Include="BrawlLib">
-      <HintPath>D:\Users\Isaac\Documents\Visual Studio 2013\Projects\brawltools\BrawlLib\bin\Debug\BrawlLib.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -101,6 +98,7 @@
     <ClInclude Include="brawlprintf.h" />
     <ClInclude Include="brawlsdiff.h" />
     <ClInclude Include="find_children.h" />
+    <ClInclude Include="isinst.h" />
     <ClInclude Include="usage.h" />
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +106,11 @@
     <None Include="brawlsdiff.sh" />
     <None Include="LICENSE" />
     <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\brawltools\BrawlLib\BrawlLib.csproj">
+      <Project>{462d0bbf-ce82-405b-8848-2f91e9e14c55}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

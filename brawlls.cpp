@@ -2,6 +2,7 @@
 #include "brawlprintf.h"
 #include "find_children.h"
 #include "usage.h"
+#include "isinst.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -23,11 +24,6 @@ enum class MDL0PrintType {
 enum class ProgramBehavior {
 	UNDEFINED, NORMAL, EXTRACT, EXTRACT_ALL
 };
-
-template < class T, class U >
-Boolean isinst(U u) {
-	return dynamic_cast< T >(u) != nullptr;
-}
 
 void print_recursive(TextWriter^ outstream,
 	String^ format, String^ prefix, ResourceNode^ node,

@@ -1,13 +1,10 @@
+#include "isinst.h"
+
 using namespace System;
 using namespace System::ComponentModel;
 using namespace System::Reflection;
 using namespace System::Text;
 using namespace BrawlLib::SSBB::ResourceNodes;
-
-template < class T, class U >
-Boolean isinst(U u) {
-	return dynamic_cast< T >(u) != nullptr;
-}
 
 String^ properties_str(String^ prefix, Object^ node) {
 	StringBuilder sb;

@@ -1,5 +1,6 @@
 #include "brawlprintf.h"
 #include "brawlsdiff.h"
+#include "isinst.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -41,7 +42,7 @@ int compare(ResourceNode^ left, ResourceNode^ right) {
 	return compare(left, right, "");
 }
 
-const int colwidth = 38;
+const int colwidth = 78;
 
 int compare(ResourceNode^ left, ResourceNode^ right, String^ prefix) {
 	String^ leftstr = (left == nullptr) ? "" : format_obj("%~+%i %n %t %b %m", prefix, left);
@@ -68,6 +69,9 @@ int compare(ResourceNode^ left, ResourceNode^ right, String^ prefix) {
 	if (true||sepchar != ' ') Console::WriteLine(%line);
 
 	prefix += "  ";
+
+	//if (isinst<MDL0Node^>(left)) left = nullptr;
+	//if (isinst<MDL0Node^>(right)) right = nullptr;
 
 	List<ResourceNode^>^ leftchildren = (left == nullptr) ? gcnew List<ResourceNode^>() : left->Children;
 	List<ResourceNode^>^ rightchildren = (right == nullptr) ? gcnew List<ResourceNode^>() : right->Children;
