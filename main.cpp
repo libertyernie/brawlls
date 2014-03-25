@@ -2,9 +2,7 @@
 #include "brawlsdiff.h"
 
 int main(array<System::String^>^ args) {
-	for each(System::String^ argument in args) {
-		if (argument == "sdiff") return compare(args);
-	}
+	if (args->Length > 0 && args[0] == "sdiff") return compare(args);
 
 	return brawlls(args, System::Console::Out);
 }

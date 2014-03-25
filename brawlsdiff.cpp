@@ -8,42 +8,16 @@ using namespace System::Text;
 using namespace System::IO;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
-int compare(array<String^>^ args) {
-	bool differences_only = false;
-	ResourceNode^ file1;
-	ResourceNode^ file2;
-	for each(String^ argument in args) {
-		if (argument == "sdiff") {
-			continue;
-		} else if (argument == "-s") {
-			differences_only = true;
-		} else if (file1 == nullptr) {
-			if (!File::Exists(argument)) {
-				Console::Error->WriteLine("File does not exist: " + argument);
-				return 1;
-			}
-			file1 = NodeFactory::FromFile(nullptr, argument);
-		} else if (file2 == nullptr) {
-			if (!File::Exists(argument)) {
-				Console::Error->WriteLine("File does not exist: " + argument);
-				return 1;
-			}
-			file2 = NodeFactory::FromFile(nullptr, argument);
-		} else {
-			Console::Error->WriteLine("Too many arguments: " + argument);
-			return 1;
-		}
-	}
-	if (file1 == nullptr) {
-		Console::Error->WriteLine("No file defined");
-		return 1;
-	}
-	return compare(file1, file2, differences_only);
-}
+const char* brawlsdiff_usage = R"(Usage: brawlls sdiff [options] filename1 filename2
 
-int compare(ResourceNode^ left, ResourceNode^ right, bool differences_only) {
-	return compare(left, right, differences_only, "");
-}
+-s              only show differences; don't print matching nodes
+
+If you're using Cygwin, it probably makes more sense to use the brawlsdiff.sh
+script to feed brawlls's output to your own sdiff program. brawlsdiff.sh can
+read Unix paths, has a -w [width] option, and has all the options of brawlls,
+including descending into STPM nodes. This internal "sdiff" mode of brawlls
+will probably not be expanded any further.
+)";
 
 const int colwidth = 78;
 
@@ -84,4 +58,44 @@ int compare(ResourceNode^ left, ResourceNode^ right, bool differences_only, Stri
 			prefix);
 	}
 	return 0;
+}
+
+int compare(ResourceNode^ left, ResourceNode^ right, bool differences_only) {
+	return compare(left, right, differences_only, "");
+}
+
+int compare(array<String^>^ args) {
+	bool differences_only = false;
+	ResourceNode^ file1;
+	ResourceNode^ file2;
+	for each(String^ argument in args) {
+		if (argument == "--help" || argument == "/?") {
+			Console::Write(gcnew String(brawlsdiff_usage));
+			return 0;
+		} else if (argument == "sdiff") {
+			continue;
+		} else if (argument == "-s") {
+			differences_only = true;
+		} else if (file1 == nullptr) {
+			if (!File::Exists(argument)) {
+				Console::Error->WriteLine("File does not exist: " + argument);
+				return 1;
+			}
+			file1 = NodeFactory::FromFile(nullptr, argument);
+		} else if (file2 == nullptr) {
+			if (!File::Exists(argument)) {
+				Console::Error->WriteLine("File does not exist: " + argument);
+				return 1;
+			}
+			file2 = NodeFactory::FromFile(nullptr, argument);
+		} else {
+			Console::Error->WriteLine("Too many arguments: " + argument);
+			return 1;
+		}
+	}
+	if (file1 == nullptr) {
+		Console::Error->WriteLine("No file defined");
+		return 1;
+	}
+	return compare(file1, file2, differences_only);
 }
