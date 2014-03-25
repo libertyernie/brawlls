@@ -9,11 +9,14 @@ using namespace System::IO;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
 int compare(array<String^>^ args) {
+	bool differences_only = false;
 	ResourceNode^ file1;
 	ResourceNode^ file2;
 	for each(String^ argument in args) {
 		if (argument == "sdiff") {
 			continue;
+		} else if (argument == "-s") {
+			differences_only = true;
 		} else if (file1 == nullptr) {
 			if (!File::Exists(argument)) {
 				Console::Error->WriteLine("File does not exist: " + argument);
@@ -35,16 +38,16 @@ int compare(array<String^>^ args) {
 		Console::Error->WriteLine("No file defined");
 		return 1;
 	}
-	return compare(file1, file2);
+	return compare(file1, file2, differences_only);
 }
 
-int compare(ResourceNode^ left, ResourceNode^ right) {
-	return compare(left, right, "");
+int compare(ResourceNode^ left, ResourceNode^ right, bool differences_only) {
+	return compare(left, right, differences_only, "");
 }
 
 const int colwidth = 78;
 
-int compare(ResourceNode^ left, ResourceNode^ right, String^ prefix) {
+int compare(ResourceNode^ left, ResourceNode^ right, bool differences_only, String^ prefix) {
 	String^ leftstr = (left == nullptr) ? "" : format_obj("%~+%i %n %t %b %m", prefix, left);
 	if (leftstr->Length > colwidth) leftstr = leftstr->Substring(0, colwidth);
 	String^ rightstr = (right == nullptr) ? "" : format_obj("%~+%i %n %t %b %m", prefix, right);
@@ -66,12 +69,9 @@ int compare(ResourceNode^ left, ResourceNode^ right, String^ prefix) {
 	line.Append(sepchar);
 	line.Append(" ");
 	line.Append(%rightprint);
-	if (true||sepchar != ' ') Console::WriteLine(%line);
+	if (!differences_only||sepchar != ' ') Console::WriteLine(%line);
 
 	prefix += "  ";
-
-	//if (isinst<MDL0Node^>(left)) left = nullptr;
-	//if (isinst<MDL0Node^>(right)) right = nullptr;
 
 	List<ResourceNode^>^ leftchildren = (left == nullptr) ? gcnew List<ResourceNode^>() : left->Children;
 	List<ResourceNode^>^ rightchildren = (right == nullptr) ? gcnew List<ResourceNode^>() : right->Children;
@@ -80,6 +80,7 @@ int compare(ResourceNode^ left, ResourceNode^ right, String^ prefix) {
 		int result = compare(
 			leftchildren->Count > i ? leftchildren[i] : nullptr,
 			rightchildren->Count > i ? rightchildren[i] : nullptr,
+			differences_only,
 			prefix);
 	}
 	return 0;
