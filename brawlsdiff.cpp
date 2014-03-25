@@ -1,5 +1,4 @@
 #include "brawlprintf.h"
-#include "brawlsdiff.h"
 #include "isinst.h"
 
 using namespace System;

@@ -50,12 +50,6 @@
     <ClInclude Include="brawlprintf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="brawlls.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="brawlsdiff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="isinst.h">
       <Filter>Header Files</Filter>
     </ClInclude>

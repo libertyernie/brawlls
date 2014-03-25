@@ -25,11 +25,38 @@ enum class ProgramBehavior {
 	UNDEFINED, NORMAL, EXTRACT, EXTRACT_ALL
 };
 
-void print_recursive(TextWriter^ outstream,
-	String^ format, String^ prefix, ResourceNode^ node,
-	MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth);
 
-int brawlls(array<String^>^ args, TextWriter^ outwriter) {
+
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth) {
+	if (!isRoot) {
+		Console::WriteLine(format_obj(format, prefix, node));
+		prefix += "  ";
+	}
+
+	if (maxdepth == 0) return;
+
+	if (isinst<STPMEntryNode^>(node) && stpmValues) {
+		Console::Write(properties_str(prefix, node));
+	} else {
+		if (isinst<MDL0Node^>(node)) {
+			if (modelsDeep == MDL0PrintType::NEVER) {
+				return;
+			} else if (modelsDeep == MDL0PrintType::SELECTIVE && !isRoot && !node->Name->EndsWith("osition")) {
+				return;
+			}
+		}
+
+		int newdepth = maxdepth < 0
+			? -1
+			: maxdepth - 1;
+		for each(ResourceNode^ child in node->Children) {
+			print_recursive(format, prefix, child, modelsDeep, stpmValues, false, newdepth);
+		}
+	}
+	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
+}
+
+int brawlls(array<String^>^ args) {
 	if (args->Length == 0) {
 		return usage("");
 	}
@@ -131,8 +158,9 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 
 	if (behavior == ProgramBehavior::NORMAL && printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
-			outwriter->WriteLine(format_obj(format, "", child));
+			Console::WriteLine(format_obj(format, "", child));
 		}
+		return 0;
 	} else if (matchingNodes.Count > 1) {
 		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
 		return 1;
@@ -154,42 +182,15 @@ int brawlls(array<String^>^ args, TextWriter^ outwriter) {
 		}
 		return extract_all(matchingNodes[0], dir, ext);
 	} else if (isinst<STPMEntryNode^>(matchingNodes[0])) {
-		outwriter->Write(properties_str("", matchingNodes[0]));
+		Console::Write(properties_str("", matchingNodes[0]));
+		return 0;
 	} else if (matchingNodes[0]->Children->Count == 0) {
 		Console::Error->WriteLine("The node " + matchingNodes[0]->Name + " does not have any children.");
 		return 0;
 	} else {
 		int maxdepth = recursive ? -1 : 1;
-		print_recursive(outwriter, format, "", matchingNodes[0], modelsDeep, stpmValues, true, maxdepth);
+		print_recursive(format, "", matchingNodes[0], modelsDeep, stpmValues, true, maxdepth);
 		return 0;
 	}
 }
 
-void print_recursive(TextWriter^ outstream, String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth) {
-	if (!isRoot) {
-		outstream->WriteLine(format_obj(format, prefix, node));
-		prefix += "  ";
-	}
-
-	if (maxdepth == 0) return;
-
-	if (isinst<STPMEntryNode^>(node) && stpmValues) {
-		outstream->Write(properties_str(prefix, node));
-	} else {
-		if (isinst<MDL0Node^>(node)) {
-			if (modelsDeep == MDL0PrintType::NEVER) {
-				return;
-			} else if (modelsDeep == MDL0PrintType::SELECTIVE && !isRoot && !node->Name->EndsWith("osition")) {
-				return;
-			}
-		}
-
-		int newdepth = maxdepth < 0
-			? -1
-			: maxdepth - 1;
-		for each(ResourceNode^ child in node->Children) {
-			print_recursive(outstream, format, prefix, child, modelsDeep, stpmValues, false, newdepth);
-		}
-	}
-	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
-}

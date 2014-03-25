@@ -94,9 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="brawlextract.h" />
-    <ClInclude Include="brawlls.h" />
     <ClInclude Include="brawlprintf.h" />
-    <ClInclude Include="brawlsdiff.h" />
     <ClInclude Include="find_children.h" />
     <ClInclude Include="isinst.h" />
     <ClInclude Include="usage.h" />
