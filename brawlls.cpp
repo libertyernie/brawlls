@@ -1,3 +1,4 @@
+#include <cstring>
 #include "brawlextract.h"
 #include "brawlprintf.h"
 #include "find_children.h"
@@ -25,9 +26,7 @@ enum class ProgramBehavior {
 	UNDEFINED, NORMAL, EXTRACT, EXTRACT_ALL
 };
 
-
-
-void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool stpmValues, bool isRoot, int maxdepth) {
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool printProperties, bool isRoot, int maxdepth) {
 	if (!isRoot) {
 		Console::WriteLine(format_obj(format, prefix, node));
 		prefix += "  ";
@@ -35,8 +34,9 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0Pri
 
 	if (maxdepth == 0) return;
 
-	if (isinst<STPMEntryNode^>(node) && stpmValues) {
-		Console::Write(properties_str(prefix, node));
+	String^ details = printProperties ? details_str(prefix, node) : nullptr;
+	if (details != nullptr) {
+		Console::Write(details);
 	} else {
 		if (isinst<MDL0Node^>(node)) {
 			if (modelsDeep == MDL0PrintType::NEVER) {
@@ -50,7 +50,7 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0Pri
 			? -1
 			: maxdepth - 1;
 		for each(ResourceNode^ child in node->Children) {
-			print_recursive(format, prefix, child, modelsDeep, stpmValues, false, newdepth);
+			print_recursive(format, prefix, child, modelsDeep, printProperties, false, newdepth);
 		}
 	}
 	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
@@ -181,8 +181,11 @@ int brawlls(array<String^>^ args) {
 			return 1;
 		}
 		return extract_all(matchingNodes[0], dir, ext);
-	} else if (isinst<STPMEntryNode^>(matchingNodes[0])) {
-		Console::Write(properties_str("", matchingNodes[0]));
+	}
+	
+	String^ details = details_str("", node);
+	if (isinst<STPMEntryNode^>(matchingNodes[0])) {
+		Console::Write(details);
 		return 0;
 	} else if (matchingNodes[0]->Children->Count == 0) {
 		Console::Error->WriteLine("The node " + matchingNodes[0]->Name + " does not have any children.");

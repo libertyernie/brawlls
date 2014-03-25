@@ -1,4 +1,6 @@
 #include "isinst.h"
+#include <string>
+#include <iostream>
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -60,4 +62,40 @@ String^ format_obj(String^ format, String^ prefix, Object^ obj) {
 		->Replace("%m", md5)
 		->Replace("%s", size)
 		->Replace("%%", "%");
+}
+
+float rv_endian(float input) {
+	float output = 0;
+	char* ptr1 = (char*)&input;
+	char* ptr2 = (char*)&output;
+	ptr2[0] = ptr1[3];
+	ptr2[1] = ptr1[2];
+	ptr2[2] = ptr1[1];
+	ptr2[3] = ptr1[0];
+	return output;
+}
+
+String^ stdt_floats_str(String^ prefix, ResourceNode^ node) {
+	StringBuilder sb;
+	float* addr = (float*)(void*)node->UncompressedSource.Address;
+	int length = node->UncompressedSource.Length;
+	for (int i = 5; i < length; i++) {
+		sb.AppendLine(prefix + "0x" + (i*4).ToString("X2") + " " + rv_endian(addr[i]));
+	}
+	return sb.ToString();
+}
+
+bool datatag(const char* tag, ResourceNode^ node) {
+	if (node->UncompressedSource.Length < 4) return false;
+	return 0 == std::strncmp(tag, (char*)(void*)node->UncompressedSource.Address, 4);
+}
+
+String^ details_str(String^ prefix, ResourceNode^ node) {
+	if (isinst<STPMEntryNode^>(node)) {
+		return properties_str(prefix, node);
+	} else if (datatag("STDT", node)) {
+		return stdt_floats_str(prefix, node);
+	} else {
+		return nullptr;
+	}
 }
