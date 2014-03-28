@@ -164,10 +164,9 @@ int brawlls(array<String^>^ args) {
 	// load resource node
 	ResourceNode^ node = load_node_from_file_or_stdin(filename);
 
-	List<ResourceNode^> matchingNodes;
-	find_children(node, nodepath, %matchingNodes, searchChildren);
+	List<ResourceNode^>^ matchingNodes = find_children(node, nodepath, searchChildren);
 
-	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
+	if (matchingNodes->Count == 0) return usage("No nodes found matching path: " + nodepath);
 
 	// handle --self/-d
 	// (but ignore --self/-d when using brawlls to extract something)
@@ -179,8 +178,8 @@ int brawlls(array<String^>^ args) {
 		return 0;
 	}
 
-	if (matchingNodes.Count > 1) {
-		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
+	if (matchingNodes->Count > 1) {
+		Console::Error->WriteLine("Search matched " + matchingNodes->Count + " nodes. Use -d or --self to list them.");
 		return 1;
 	}
 	

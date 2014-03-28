@@ -5,17 +5,6 @@ using namespace System;
 using System::Collections::Generic::List;
 using System::Text::RegularExpressions::Regex;
 
-void find_children(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output, bool useBrawlLibSearchChildren) {
-	if (nodepath == nullptr) {
-		output->Add(root);
-	} else if (useBrawlLibSearchChildren) {
-		ResourceNode^ found = root->FindChild(nodepath, true);
-		if (found != nullptr) output->Add(found);
-	} else {
-		find_children_recursive(root, nodepath, output);
-	}
-}
-
 void find_children_recursive(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ output) {
 	nodepath = nodepath->Replace("+", "/+")->Replace("//", "/");
 	while (nodepath->StartsWith("/")) {
@@ -49,4 +38,21 @@ void find_children_recursive(ResourceNode^ root, String^ nodepath, List<Resource
 			}
 		}
 	}
+}
+
+/**
+* Tries to find children of the given root using the given nodepath (which can be null.)
+* If no children are found for the path, this function returns an empty list.
+*/
+List<ResourceNode^>^ find_children(ResourceNode^ root, String^ nodepath, bool useBrawlLibSearchChildren) {
+	List<ResourceNode^>^ output = gcnew List<ResourceNode^>();
+	if (nodepath == nullptr) {
+		output->Add(root);
+	} else if (useBrawlLibSearchChildren) {
+		ResourceNode^ found = root->FindChild(nodepath, true);
+		if (found != nullptr) output->Add(found);
+	} else {
+		find_children_recursive(root, nodepath, output);
+	}
+	return output;
 }
