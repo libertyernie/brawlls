@@ -59,6 +59,17 @@ void cleanup() {
 	}
 }
 
+void stdin_to_file(String^ tmpfile) {
+	Stream^ stdin = Console::OpenStandardInput();
+	Stream^ outstream = gcnew FileStream(tmpfile, FileMode::Create, FileAccess::Write);
+	array<unsigned char>^ buffer = gcnew array<unsigned char>(2048);
+	int bytes;
+	while ((bytes = stdin->Read(buffer, 0, buffer->Length)) > 0) {
+		outstream->Write(buffer, 0, bytes);
+	}
+	outstream->Close();
+}
+
 ResourceNode^ load_node_from_file_or_stdin(String^ filename) {
 	ResourceNode^ node;
 	if (filename != "-") {
@@ -66,15 +77,8 @@ ResourceNode^ load_node_from_file_or_stdin(String^ filename) {
 	} else {
 		// write contents of stdin to a temporary file
 		String^ tmpfile = Path::GetTempFileName();
-		Stream^ stdin = Console::OpenStandardInput();
-		Stream^ outstream = gcnew FileStream(tmpfile, FileMode::Create, FileAccess::Write);
-		array<unsigned char>^ buffer = gcnew array<unsigned char>(2048);
-		int bytes;
-		while ((bytes = stdin->Read(buffer, 0, buffer->Length)) > 0) {
-			outstream->Write(buffer, 0, bytes);
-		}
-		outstream->Close();
-
+		stdin_to_file(tmpfile);
+		Console::WriteLine(tmpfile);
 		node = NodeFactory::FromFile(nullptr, tmpfile);
 		cleanup_args::tempFile = node;
 		atexit(cleanup);
