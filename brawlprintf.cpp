@@ -8,22 +8,6 @@ using namespace System::Reflection;
 using namespace System::Text;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
-String^ properties_str(String^ prefix, Object^ node) {
-	StringBuilder sb;
-	for each(PropertyInfo^ entry in node->GetType()->GetProperties()) {
-		for each(Attribute^ attribute in entry->GetCustomAttributes(false)) {
-			if (isinst<CategoryAttribute^>(attribute)) {
-				Object^ val = entry->GetValue(node, nullptr);
-				String^ valstr = val == nullptr
-					? "null"
-					: val->ToString();
-				sb.AppendLine(prefix + entry->Name + " " + valstr);
-			}
-		}
-	}
-	return sb.ToString();
-}
-
 String^ format_obj(String^ format, String^ prefix, Object^ obj) {
 	String^ name = obj == nullptr
 		? "null"
@@ -62,6 +46,22 @@ String^ format_obj(String^ format, String^ prefix, Object^ obj) {
 		->Replace("%m", md5)
 		->Replace("%s", size)
 		->Replace("%%", "%");
+}
+
+String^ properties_str(String^ prefix, Object^ node) {
+	StringBuilder sb;
+	for each(PropertyInfo^ entry in node->GetType()->GetProperties()) {
+		for each(Attribute^ attribute in entry->GetCustomAttributes(false)) {
+			if (isinst<CategoryAttribute^>(attribute)) {
+				Object^ val = entry->GetValue(node, nullptr);
+				String^ valstr = val == nullptr
+					? "null"
+					: val->ToString();
+				sb.AppendLine(prefix + entry->Name + " " + valstr);
+			}
+		}
+	}
+	return sb.ToString();
 }
 
 float rv_endian(float input) {
