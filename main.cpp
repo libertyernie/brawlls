@@ -1,8 +1,12 @@
-int brawlls(array<System::String^>^ args);
-int compare(array<System::String^>^ args);
+using namespace System;
 
-int main(array<System::String^>^ args) {
+int brawlls(array<String^>^ args);
+int compare(array<String^>^ args);
+
+int main(array<String^>^ args) {
 	if (args->Length > 0 && args[0] == "sdiff") return compare(args);
 
-	return brawlls(args);
+	String^ file_to_delete = nullptr;
+	int r = brawlls(args);
+	return r;
 }

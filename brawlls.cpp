@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cstdlib>
 #include "brawlextract.h"
 #include "brawlprintf.h"
 #include "find_children.h"
@@ -56,15 +57,27 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0Pri
 	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
 }
 
+ref struct cleanup_args {
+	static ResourceNode^ tempFile;
+};
+
+void cleanup() {
+	if (cleanup_args::tempFile != nullptr) {
+		String^ path = cleanup_args::tempFile->FilePath;
+		delete cleanup_args::tempFile;
+		File::Delete(path);
+	}
+}
+
 int brawlls(array<String^>^ args) {
 	if (args->Length == 0) {
 		return usage("");
 	}
 
+	// most basic arguments
 	String^ filename;
 	String^ nodepath;
 	String^ format;
-	MDL0PrintType modelsDeep = MDL0PrintType::SELECTIVE; // --mdl0, --no-mdl0
 
 	// affects printout only
 	bool recursive = false, // -R
@@ -78,6 +91,8 @@ int brawlls(array<String^>^ args) {
 	// affects node search
 	bool searchChildren = false; // -c
 
+	// other arguments
+	MDL0PrintType modelsDeep = MDL0PrintType::SELECTIVE; // --mdl0, --no-mdl0
 	ProgramBehavior behavior = ProgramBehavior::UNDEFINED;
 	List<String^> behavior_arguments; // arguments not otherwise defined that come after the behavior
 
@@ -126,7 +141,24 @@ int brawlls(array<String^>^ args) {
 	}
 	if (behavior == ProgramBehavior::UNDEFINED) behavior = ProgramBehavior::NORMAL;
 
-	if (filename == "-") {
+	if (filename == nullptr) return usage("Error: no filename given.");
+	if (filename != "-" && !File::Exists(filename)) return usage("Error: file not found: " + filename);
+
+	// fill in format value, unless overridden
+	if (format == nullptr) {
+		format = "%~+%i" +
+			(fullpath ? " %p" : " %n") +
+			(showtype ? " %t" : "") +
+			(boneValues ? " %b" : "") +
+			(printMD5 ? " %m" : "");
+	}
+
+	// load resource node
+	ResourceNode^ node;
+	if (filename != "-") {
+		node = NodeFactory::FromFile(nullptr, filename);
+	} else {
+		// write contents of stdin to a temporary file
 		String^ tmpfile = Path::GetTempFileName();
 		Stream^ stdin = Console::OpenStandardInput();
 		Stream^ outstream = gcnew FileStream(tmpfile, FileMode::Create, FileAccess::Write);
@@ -136,35 +168,33 @@ int brawlls(array<String^>^ args) {
 			outstream->Write(buffer, 0, bytes);
 		}
 		outstream->Close();
-		filename = tmpfile;
+
+		node = NodeFactory::FromFile(nullptr, tmpfile);
+		cleanup_args::tempFile = node;
+		atexit(cleanup);
 	}
 
-	if (filename == nullptr) return usage("Error: no filename given.");
-	if (!File::Exists(filename)) return usage("Error: file not found: " + filename);
-
-	if (format == nullptr) {
-		format = "%~+%i" +
-			(fullpath ? " %p" : " %n") +
-			(showtype ? " %t" : "") +
-			(boneValues ? " %b" : "") +
-			(printMD5 ? " %m" : "");
-	}
-
-	ResourceNode^ node = NodeFactory::FromFile(nullptr, filename);
 	List<ResourceNode^> matchingNodes;
 	find_children(node, nodepath, %matchingNodes, searchChildren);
 
 	if (matchingNodes.Count == 0) return usage("No nodes found matching path: " + nodepath);
 
+	// handle --self/-d
+	// (but ignore --self/-d when using brawlls to extract something)
+	// Do this here, because it's the only method of the program that can handle >1 matching node
 	if (behavior == ProgramBehavior::NORMAL && printSelf) {
 		for each(ResourceNode^ child in matchingNodes) {
 			Console::WriteLine(format_obj(format, "", child));
 		}
 		return 0;
-	} else if (matchingNodes.Count > 1) {
+	}
+
+	if (matchingNodes.Count > 1) {
 		Console::Error->WriteLine("Search matched " + matchingNodes.Count + " nodes. Use -d or --self to list them.");
 		return 1;
-	} else if (behavior == ProgramBehavior::EXTRACT) {
+	}
+	
+	if (behavior == ProgramBehavior::EXTRACT) {
 		String^ filename = behavior_arguments.Count >= 1 ? behavior_arguments[0] : nullptr;
 		if (filename == nullptr) {
 			Console::Error->WriteLine("Error: no output filename or extension specified");
@@ -183,6 +213,7 @@ int brawlls(array<String^>^ args) {
 		return extract_all(matchingNodes[0], dir, ext);
 	}
 	
+	// attempt recursive printout of children (not including self)
 	String^ details = details_str("", matchingNodes[0]);
 	if (details != nullptr) {
 		Console::Write(details);
