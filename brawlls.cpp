@@ -19,15 +19,11 @@ int usage(String^ error_msg) {
 	return 1;
 }
 
-enum class MDL0PrintType {
-	ALWAYS, NEVER, SELECTIVE
-};
-
 enum class ProgramBehavior {
 	UNDEFINED, NORMAL, EXTRACT, EXTRACT_ALL
 };
 
-void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0PrintType modelsDeep, bool printProperties, bool isRoot, int maxdepth) {
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool deep, bool isRoot, int maxdepth) {
 	if (!isRoot) {
 		Console::WriteLine(format_obj(format, prefix, node));
 		prefix += "  ";
@@ -35,23 +31,17 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, MDL0Pri
 
 	if (maxdepth == 0) return;
 
-	String^ details = printProperties ? details_str(prefix, node) : nullptr;
+	String^ details = deep ? details_str(prefix, node) : nullptr;
 	if (details != nullptr) {
 		Console::Write(details);
 	} else {
-		if (isinst<MDL0Node^>(node)) {
-			if (modelsDeep == MDL0PrintType::NEVER) {
-				return;
-			} else if (modelsDeep == MDL0PrintType::SELECTIVE && !isRoot && !node->Name->EndsWith("osition")) {
-				return;
-			}
-		}
+		if (isinst<MDL0Node^>(node) && !deep) return;
 
 		int newdepth = maxdepth < 0
 			? -1
 			: maxdepth - 1;
 		for each(ResourceNode^ child in node->Children) {
-			print_recursive(format, prefix, child, modelsDeep, printProperties, false, newdepth);
+			print_recursive(format, prefix, child, deep, false, newdepth);
 		}
 	}
 	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
@@ -69,6 +59,29 @@ void cleanup() {
 	}
 }
 
+ResourceNode^ load_node_from_file_or_stdin(String^ filename) {
+	ResourceNode^ node;
+	if (filename != "-") {
+		node = NodeFactory::FromFile(nullptr, filename);
+	} else {
+		// write contents of stdin to a temporary file
+		String^ tmpfile = Path::GetTempFileName();
+		Stream^ stdin = Console::OpenStandardInput();
+		Stream^ outstream = gcnew FileStream(tmpfile, FileMode::Create, FileAccess::Write);
+		array<unsigned char>^ buffer = gcnew array<unsigned char>(2048);
+		int bytes;
+		while ((bytes = stdin->Read(buffer, 0, buffer->Length)) > 0) {
+			outstream->Write(buffer, 0, bytes);
+		}
+		outstream->Close();
+
+		node = NodeFactory::FromFile(nullptr, tmpfile);
+		cleanup_args::tempFile = node;
+		atexit(cleanup);
+	}
+	return node;
+}
+
 int brawlls(array<String^>^ args) {
 	if (args->Length == 0) {
 		return usage("");
@@ -81,7 +94,6 @@ int brawlls(array<String^>^ args) {
 
 	// affects printout only
 	bool recursive = false, // -R
-		stpmValues = true, // --stpm, --no-stpm
 		boneValues = true, // --bone, --no-bone
 		showtype = false, // -t
 		printSelf = false, // -d, --self
@@ -90,9 +102,9 @@ int brawlls(array<String^>^ args) {
 
 	// affects node search
 	bool searchChildren = false; // -c
+	bool deep = false; // --deep
 
 	// other arguments
-	MDL0PrintType modelsDeep = MDL0PrintType::SELECTIVE; // --mdl0, --no-mdl0
 	ProgramBehavior behavior = ProgramBehavior::UNDEFINED;
 	List<String^> behavior_arguments; // arguments not otherwise defined that come after the behavior
 
@@ -111,13 +123,9 @@ int brawlls(array<String^>^ args) {
 			return 0;
 		}
 		if (argument == "--self") printSelf = true;
-		else if (argument == "--stpm") stpmValues = true;
-		else if (argument == "--no-stpm") stpmValues = false;
-		else if (argument == "--bone") boneValues = true;
-		else if (argument == "--no-bone") boneValues = false;
-		else if (argument == "--mdl0") modelsDeep = MDL0PrintType::ALWAYS;
-		else if (argument == "--no-mdl0") modelsDeep = MDL0PrintType::NEVER;
 		else if (argument == "--full-path") fullpath = true;
+		else if (argument == "--deep") deep = true;
+		else if (argument == "--shallow") deep = false;
 		else if (argument->StartsWith("--format=")) format = argument->Substring(9);
 		else if (argument->StartsWith("-") && argument->Length > 1) {
 			for each(char c in argument->Substring(1)) {
@@ -154,25 +162,7 @@ int brawlls(array<String^>^ args) {
 	}
 
 	// load resource node
-	ResourceNode^ node;
-	if (filename != "-") {
-		node = NodeFactory::FromFile(nullptr, filename);
-	} else {
-		// write contents of stdin to a temporary file
-		String^ tmpfile = Path::GetTempFileName();
-		Stream^ stdin = Console::OpenStandardInput();
-		Stream^ outstream = gcnew FileStream(tmpfile, FileMode::Create, FileAccess::Write);
-		array<unsigned char>^ buffer = gcnew array<unsigned char>(2048);
-		int bytes;
-		while ((bytes = stdin->Read(buffer, 0, buffer->Length)) > 0) {
-			outstream->Write(buffer, 0, bytes);
-		}
-		outstream->Close();
-
-		node = NodeFactory::FromFile(nullptr, tmpfile);
-		cleanup_args::tempFile = node;
-		atexit(cleanup);
-	}
+	ResourceNode^ node = load_node_from_file_or_stdin(filename);
 
 	List<ResourceNode^> matchingNodes;
 	find_children(node, nodepath, %matchingNodes, searchChildren);
@@ -223,7 +213,7 @@ int brawlls(array<String^>^ args) {
 		return 0;
 	} else {
 		int maxdepth = recursive ? -1 : 1;
-		print_recursive(format, "", matchingNodes[0], modelsDeep, stpmValues, true, maxdepth);
+		print_recursive(format, "", matchingNodes[0], deep, true, maxdepth);
 		return 0;
 	}
 }

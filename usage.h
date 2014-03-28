@@ -4,21 +4,18 @@ const char* usage_help_line = "Run with --help or /? for more information.";
 const char* usage_desc = R"(
 -d, --self  list only the specified nodes, not their children (akin to ls -d)
 -R          list nodes recursively (akin to ls -R)
+--deep      descend into MDL0 and print STPM and STDT values (you can also
+            list these values by specifying the MDL0/STPMEntry/STDT node in
+            the [path within file] section)
 -c          find only the first path that matches (disables wildcards and +s)
 --help, /?  print this message to stdout
 
 --xhelp  info about the "x" command
 --xallhelp  info about the "xall" command
 
---no-stpm  don't list STPM values (default is --stpm)
---no-bone  don't print bone values (default is --bone)
---mdl0     always list sub-nodes of MDL0 models
---no-mdl0  never list sub-nodes of MDL0 models
-The default is to show MDL0 sub-nodes when the node is the working root
-(specified on the command-line) or its name ends in "osition".
-
 -t              show node types next to names
 -m              show MD5 checksums next to names
+--no-bone       don't print bone values (default is --bone)
 --full-path     show full path instead of name
 --format="..."  overrides -t, -m, --bone, --no-bone, and --full-path;
                 run "brawlls --formathelp" for more information
