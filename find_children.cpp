@@ -9,7 +9,8 @@ void find_children(ResourceNode^ root, String^ nodepath, List<ResourceNode^>^ ou
 	if (nodepath == nullptr) {
 		output->Add(root);
 	} else if (useBrawlLibSearchChildren) {
-		output->Add(root->FindChild(nodepath, true));
+		ResourceNode^ found = root->FindChild(nodepath, true);
+		if (found != nullptr) output->Add(found);
 	} else {
 		find_children_recursive(root, nodepath, output);
 	}

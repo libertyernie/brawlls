@@ -4,13 +4,13 @@ const char* usage_help_line = "Run with --help or /? for more information.";
 const char* usage_desc = R"(
 -d, --self  list only the specified nodes, not their children (akin to ls -d)
 -R          list nodes recursively (akin to ls -R)
---deep      descend into MDL0 and print STPM and STDT values (you can also
-            list these values by specifying the MDL0/STPMEntry/STDT node in
-            the [path within file] section)
+--deep      descend into BRES entries (MDL0, TEX0, etc.) and print STPM and
+            STDT values (you can also print/descend into a particular node by
+            specifying the STDT node in the [path within file] section)
 -c          find only the first path that matches (disables wildcards and +s)
 --help, /?  print this message to stdout
 
---xhelp  info about the "x" command
+--xhelp     info about the "x" command
 --xallhelp  info about the "xall" command
 
 -t              show node types next to names

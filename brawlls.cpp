@@ -35,7 +35,7 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool de
 	if (details != nullptr) {
 		Console::Write(details);
 	} else {
-		if (isinst<MDL0Node^>(node) && !deep) return;
+		if (isinst<BRESEntryNode^>(node) && !isRoot && !deep) return;
 
 		int newdepth = maxdepth < 0
 			? -1
