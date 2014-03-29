@@ -58,7 +58,7 @@ String^ stdt_lines(String^ prefix, ResourceNode^ node) {
 	entry_4byte* addr = (entry_4byte*)(void*)node->UncompressedSource.Address;
 	int length = node->UncompressedSource.Length;
 	for (int i = 5; i < length; i++) {
-		sb.AppendLine("0x" + (i*4).ToString("X3") + ": " + addr[i].rv_endian().summary_to_cli_str());
+		sb.AppendLine(prefix + "0x" + (i*4).ToString("X3") + ": " + addr[i].rv_endian().summary_to_cli_str());
 	}
 	return sb.ToString();
 }
