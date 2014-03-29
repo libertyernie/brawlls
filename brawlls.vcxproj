@@ -91,12 +91,14 @@
     <ClCompile Include="brawlsdiff.cpp" />
     <ClCompile Include="find_children.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="stdt.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="brawlextract.h" />
     <ClInclude Include="brawlprintf.h" />
     <ClInclude Include="find_children.h" />
     <ClInclude Include="isinst.h" />
+    <ClInclude Include="stdt.h" />
     <ClInclude Include="usage.h" />
   </ItemGroup>
   <ItemGroup>

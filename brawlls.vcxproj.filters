@@ -27,13 +27,16 @@
     <ClCompile Include="find_children.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="brawlprintf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="brawlsdiff.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="brawlprintf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="isinst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
