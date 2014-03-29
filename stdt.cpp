@@ -1,43 +1,48 @@
 #include <string>
 #include <cstdio>
-#include <iostream>
-#include <sstream>
-#include <iomanip>
 
 using namespace std;
 
 using System::String;
+using System::Text::StringBuilder;
 using BrawlLib::SSBB::ResourceNodes::ResourceNode;
-
-union entry_4byte {
-	float f;
-	__int32 i;
-	char c;
-};
 
 unsigned char safe_c(unsigned char c) {
 	return isprint(c) ? c : ' ';
 }
 
-ostream& operator<<(ostream& out, entry_4byte u) {
-	char hexbuf[9];
-	for (int i = 0; i < 4; i++) {
-		sprintf(hexbuf, "%08X", u.i);
-	}
-	out << hexbuf << " (";
-	for (int i = 0; i < 4; i++) {
-		out << safe_c(*(&u.c + i));
-	}
-	return out << ") " << setw(10) << u.i << " / " << u.f;
-}
+union entry_4byte {
+	float f;
+	__int32 i;
 
-entry_4byte rv_endian(entry_4byte input) {
-	entry_4byte output;
-	char* src = &input.c;
-	char* dest = &output.c;
-	for (int i = 0; i < 4; i++) dest[i] = src[3 - i];
-	return output;
-}
+	char* ptr() {
+		return (char*)&i;
+	}
+
+	static const size_t SUMMARY_SIZE = 43;
+	void summary_to_buffer(char* dest) {
+		char* self_ptr = ptr();
+		char as_ascii[4];
+		for (int z = 0; z < 4; z++) {
+			as_ascii[z] = safe_c(self_ptr[z]);
+		}
+		sprintf(dest, "%10d / %12g (%.4s) %08X", i, f, as_ascii, i);
+	}
+	
+	String^ summary_to_cli_str() {
+		char buf[SUMMARY_SIZE];
+		summary_to_buffer(buf);
+		return gcnew String(buf);
+	}
+
+	entry_4byte rv_endian() {
+		entry_4byte output;
+		char* src = ptr();
+		char* dest = output.ptr();
+		for (int i = 0; i < 4; i++) dest[i] = src[3 - i];
+		return output;
+	}
+};
 
 bool data_tag_is(const char* tag, ResourceNode^ node) {
 	if (node->UncompressedSource.Length < 4) return false;
@@ -48,22 +53,12 @@ bool data_tag_is(const char* tag, ResourceNode^ node) {
 	return true;
 }
 
-ostream& operator<<(ostream& out, String^ s) {
-	for (int i = 0; i < s->Length; i++) {
-		out << (char)s[i];
-	}
-	return out;
-}
-
 String^ stdt_lines(String^ prefix, ResourceNode^ node) {
-	stringstream sb;
+	StringBuilder sb;
 	entry_4byte* addr = (entry_4byte*)(void*)node->UncompressedSource.Address;
 	int length = node->UncompressedSource.Length;
-	char addr_str_tmp[4];
 	for (int i = 5; i < length; i++) {
-		entry_4byte rv = rv_endian(addr[i]);
-		sprintf(addr_str_tmp, "%03X", i);
-		sb << prefix << "0x" << addr_str_tmp << ": " << rv << endl;
+		sb.AppendLine("0x" + (i*4).ToString("X3") + ": " + addr[i].rv_endian().summary_to_cli_str());
 	}
-	return gcnew String(sb.str().c_str());
+	return sb.ToString();
 }
