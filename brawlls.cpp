@@ -23,7 +23,7 @@ enum class ProgramBehavior {
 	UNDEFINED, NORMAL, EXTRACT, EXTRACT_ALL, PRINT_VALUES
 };
 
-void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool deep, bool isRoot, int maxdepth) {
+void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool deep, bool mdl0deep, bool isRoot, int maxdepth) {
 	if (!isRoot) {
 		Console::WriteLine(format_obj(format, prefix, node));
 		prefix += "  ";
@@ -35,13 +35,13 @@ void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool de
 	if (details != nullptr) {
 		Console::Write(details);
 	} else {
-		if (isinst<BRESEntryNode^>(node) && !isRoot && !deep) return;
+		if (isinst<BRESEntryNode^>(node) && !isRoot && !mdl0deep) return;
 
 		int newdepth = maxdepth < 0
 			? -1
 			: maxdepth - 1;
 		for each(ResourceNode^ child in node->Children) {
-			print_recursive(format, prefix, child, deep, false, newdepth);
+			print_recursive(format, prefix, child, deep, mdl0deep, false, newdepth);
 		}
 	}
 	delete node; // calls Dispose(). this may improve performance slightly, but we can't use these nodes later in the program
@@ -107,6 +107,7 @@ int brawlls(array<String^>^ args) {
 	// affects node search
 	bool searchChildren = false; // -c
 	bool deep = false; // --deep
+	bool mdl0deep = false; // --mdl0
 
 	// other arguments
 	ProgramBehavior behavior = ProgramBehavior::UNDEFINED;
@@ -133,6 +134,7 @@ int brawlls(array<String^>^ args) {
 		if (argument == "--self") printSelf = true;
 		else if (argument == "--full-path") fullpath = true;
 		else if (argument == "--deep") deep = true;
+		else if (argument == "--mdl0") mdl0deep = true;
 		else if (argument == "--shallow") deep = false;
 		else if (argument->StartsWith("--format=")) format = argument->Substring(9);
 		else if (argument->StartsWith("-") && argument->Length > 1) {
@@ -157,7 +159,7 @@ int brawlls(array<String^>^ args) {
 		}
 	}
 	if (behavior == ProgramBehavior::UNDEFINED) behavior = ProgramBehavior::NORMAL;
-	if (deep) recursive = true;
+	if (deep || mdl0deep) recursive = true;
 
 	if (filename == nullptr) return usage("Error: no filename given.");
 	if (filename != "-" && !File::Exists(filename)) return usage("Error: file not found: " + filename);
@@ -232,7 +234,7 @@ int brawlls(array<String^>^ args) {
 		return 0;
 	} else {
 		int maxdepth = recursive ? -1 : 1;
-		print_recursive(format, "", matchingNodes[0], deep, true, maxdepth);
+		print_recursive(format, "", matchingNodes[0], deep, mdl0deep, true, maxdepth);
 		return 0;
 	}
 }
