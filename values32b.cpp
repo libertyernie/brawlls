@@ -1,7 +1,7 @@
-
 #include <cstdio>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 #ifdef __cplusplus_cli
 using System::String;
@@ -62,30 +62,6 @@ union entry_4byte {
 	}
 };
 
-#ifdef __cplusplus_cli
-/* Write the data printout (in 4-byte fragments) to the specified .NET TextWriter.
-out - the TextWriter to print to
-prefix - a string to append before each line
-node - the node to access the UncompressedSource of
-*/
-void values32b_to(TextWriter^ out, String^ prefix, ResourceNode^ node) {
-	entry_4byte* addr = (entry_4byte*)(void*)node->UncompressedSource.Address;
-	int bytelength = node->UncompressedSource.Length;
-	int length = bytelength / sizeof(entry_4byte);
-
-	int min_addr_digits = 0;
-	for (int l = bytelength; l > 0; l /= 16) {
-		min_addr_digits++;
-	}
-
-	for (int i = 0; i < length; i++) {
-		char buf[entry_4byte::SUMMARY_SIZE];
-		addr[i].summary_to_buffer(buf);
-		out->WriteLine(prefix + "0x" + (i*sizeof(entry_4byte)).ToString("X"+min_addr_digits) + ": " + gcnew String(buf));
-	}
-}
-#endif
-
 /* Write the data printout (in 4-byte fragments) to the specified C++ ostream.
 out - the ostream to print to
 prefix - a string to append before each line
@@ -110,3 +86,22 @@ void values32b_to(std::ostream& out, const char* prefix, void* address, size_t b
 void values32b_to_cout(void* address, size_t bytelength) {
 	values32b_to(std::cout, "", address, bytelength);
 }
+
+#ifdef __cplusplus_cli
+/* Return the result of values32b_to(...) as a .NET String. */
+String^ values32b_to_clistr(String^ prefix, ResourceNode^ node) {
+	char* prefix_buf = new char[prefix->Length + 1];
+	for (int i = 0; i < prefix->Length; i++) {
+		prefix_buf[i] = (char)prefix[i];
+	}
+	prefix_buf[prefix->Length] = '\0';
+
+	std::ostringstream oss;
+	values32b_to(oss, prefix_buf,
+		node->UncompressedSource.Address,
+		node->UncompressedSource.Length);
+	delete[] prefix_buf;
+	
+	return gcnew String(oss.str().c_str());
+}
+#endif

@@ -77,9 +77,7 @@ String^ details_str(String^ prefix, ResourceNode^ node) {
 	if (isinst<STPMEntryNode^>(node)) {
 		return properties_lines(prefix, node);
 	} else if (data_tag_is("STDT", node)) {
-		StringWriter sw;
-		values32b_to(%sw, prefix, node);
-		return sw.ToString();
+		return values32b_to_clistr(prefix, node);
 	} else {
 		return nullptr;
 	}
