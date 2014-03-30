@@ -28,8 +28,8 @@ union entry_4byte {
 		return (char*)&i;
 	}
 
-	/* The size of the summary string written by summary_to_buffer. */
-	static const size_t SUMMARY_SIZE = 42;
+	/* The size of the summary string written by summary_to_buffer, including null-terminator byte. */
+	static const size_t SUMMARY_SIZE = 44;
 
 	/* Writes a summary string to the memory pointed at by dest, which must have at least SUMMARY_SIZE bytes available.
 	The format of the string is:
@@ -45,7 +45,7 @@ union entry_4byte {
 			as_ascii[z] = safe_c(self_ptr[z]);
 		}
 		entry_4byte x = is_big_endian() ? *this : rv_endian();
-		sprintf(dest, "%10d / %12g (%.4s) %08X", x.i, x.f, as_ascii, x.i);
+		sprintf(dest, "% 11d / % 13g (%.4s) %08X", x.i, x.f, as_ascii, x.i);
 	}
 
 	/* Creates a new entry_4byte union with the order of the bytes reversed. */
@@ -58,6 +58,7 @@ union entry_4byte {
 	}
 };
 
+#ifdef __cplusplus_cli
 bool data_tag_is(const char* tag, ResourceNode^ node) {
 	if (node->UncompressedSource.Length < 4) return false;
 	char* ptr = (char*)(void*)node->UncompressedSource.Address;
@@ -67,7 +68,6 @@ bool data_tag_is(const char* tag, ResourceNode^ node) {
 	return true;
 }
 
-#ifdef __cplusplus_cli
 String^ stdt_lines(String^ prefix, ResourceNode^ node) {
 	StringBuilder sb;
 	entry_4byte* addr = (entry_4byte*)(void*)node->UncompressedSource.Address;
