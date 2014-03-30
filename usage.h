@@ -5,8 +5,10 @@ const char* usage_desc = R"(
 -d, --self  list only the specified nodes, not their children (akin to ls -d)
 -R          list nodes recursively (akin to ls -R)
 --deep      descend into BRES entries (MDL0, TEX0, etc.) and print STPM and
-            STDT values (you can also print/descend into a particular node by
-            specifying the STDT node in the [path within file] section)
+            STDT values (implies -R)
+                This print/descend behavior is default for the root node, so
+                you can specify a node in the [path within file] section to
+                print it out. --deep applies the same behavior to all children.
 -c          find only the first path that matches (disables wildcards and +s)
 --help, /?  print this message to stdout
 

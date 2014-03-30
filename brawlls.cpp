@@ -152,6 +152,7 @@ int brawlls(array<String^>^ args) {
 		}
 	}
 	if (behavior == ProgramBehavior::UNDEFINED) behavior = ProgramBehavior::NORMAL;
+	if (deep) recursive = true;
 
 	if (filename == nullptr) return usage("Error: no filename given.");
 	if (filename != "-" && !File::Exists(filename)) return usage("Error: file not found: " + filename);
