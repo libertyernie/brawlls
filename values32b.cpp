@@ -98,10 +98,14 @@ String^ values32b_to_clistr(String^ prefix, ResourceNode^ node) {
 
 	std::ostringstream oss;
 	values32b_to(oss, prefix_buf,
-		node->UncompressedSource.Address,
-		node->UncompressedSource.Length);
+		node->OriginalSource.Address,
+		node->OriginalSource.Length);
 	delete[] prefix_buf;
 	
 	return gcnew String(oss.str().c_str());
+}
+
+void values32b_to_cout(BrawlLib::SSBB::ResourceNodes::ResourceNode^ node) {
+	values32b_to_cout(node->OriginalSource.Address, node->OriginalSource.Length);
 }
 #endif

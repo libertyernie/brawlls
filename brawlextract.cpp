@@ -9,7 +9,7 @@ using namespace System::IO;
 using System::Collections::Generic::List;
 using BrawlLib::SSBB::ResourceNodes::ResourceNode;
 
-const char* UNCOMP_SRC_WARNING = "Note: reading uncompressed source - in certain cases (e.g. the BRES entry header), this may differ from what would be written to a file.";
+const char* UNCOMP_SRC_WARNING = "Note: reading ResourceNode.OriginalSource - in certain cases (e.g. the BRES entry header), this may differ from what would be written to a file.";
 
 int extract(ResourceNode^ node, String^ filename) {
 	if (String::IsNullOrEmpty(filename)) {
@@ -21,7 +21,7 @@ int extract(ResourceNode^ node, String^ filename) {
 	if (filename == "-") {
 		Console::Error->WriteLine(gcnew String(UNCOMP_SRC_WARNING));
 		_setmode(_fileno(stdout), O_BINARY);
-		fwrite(node->UncompressedSource.Address, 1, node->UncompressedSource.Length, stdout);
+		fwrite(node->OriginalSource.Address, 1, node->OriginalSource.Length, stdout);
 		return 0;
 	}
 
@@ -62,7 +62,7 @@ int extract_values32b(ResourceNode^ node, String^ filename) {
 
 	Console::Error->WriteLine(gcnew String(UNCOMP_SRC_WARNING));
 	if (filename == "-") {
-		values32b_to_cout(node->UncompressedSource.Address, node->UncompressedSource.Length);
+		values32b_to_cout(node);
 		return 0;
 	}
 

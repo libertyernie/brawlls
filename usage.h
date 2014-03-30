@@ -52,7 +52,7 @@ extension, and the name of the node will be used as the filename.
 The -c option is the only brawlls option that can be used with vals, and the
 PATH follows the same rules as when brawlls is being used normally.
 
-OUTPUT can be - for standard output. If you use -, the UncompressedSource of
+OUTPUT can be - for standard output. If you use -, the OriginalSource of
 the node will be used; the data may differ slightly when you export to a file,
 due to the way BrawlLib handles export operations.
 
@@ -81,7 +81,7 @@ The format is:
 This is also the behavior used to show STDT nodes when they are specified or
 when listing recursively, because BrawlLib doesn't read STDT data.
 
-vals uses the UncompressedSource of a node. This may differ slightly from
+vals uses the OriginalSource of a node. This may differ slightly from
 what "brawlls ... x" (or BrawlBox) produces when you export to a file, due
 to the way BrawlLib handles export operations.
 
