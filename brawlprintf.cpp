@@ -76,6 +76,13 @@ String^ properties_lines(String^ prefix, Object^ node) {
 String^ details_str(String^ prefix, ResourceNode^ node) {
 	if (isinst<STPMEntryNode^>(node)) {
 		return properties_lines(prefix, node);
+	} else if (isinst<MSBinNode^>(node)) {
+		MSBinNode^ msbin = (MSBinNode^)node;
+		StringBuilder sb;
+		for each(String^ s in msbin->_strings) {
+			sb.AppendLine(prefix + s);
+		}
+		return sb.ToString();
 	} else if (data_tag_is("STDT", node)) {
 		return values32b_to_clistr(prefix, node);
 	} else {

@@ -4,8 +4,8 @@ const char* usage_help_line = "Run with --help or /? for more information.";
 const char* usage_desc = R"(
 -d, --self  list only the specified nodes, not their children (akin to ls -d)
 -R          list nodes recursively (akin to ls -R)
---deep      descend into BRES entries (MDL0, TEX0, etc.) and print STPMEntry
-            and STDT values (implies -R)
+--deep      descend into BRES entries (MDL0, TEX0, etc.), print STPMEntry
+            and STDT values, and print MSBin strings (also implies -R)
                 This print/descend behavior is default for the root node, so
                 you can specify a node in the [path within file] section to
                 print it out. --deep applies the same behavior to all children.
