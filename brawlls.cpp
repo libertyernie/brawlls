@@ -5,7 +5,6 @@
 #include "find_children.h"
 #include "usage.h"
 #include "isinst.h"
-#include "values32b.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -194,6 +193,7 @@ int brawlls(array<String^>^ args) {
 		String^ filename = behavior_arguments.Count >= 1 ? behavior_arguments[0] : nullptr;
 		if (filename == nullptr) {
 			Console::Error->WriteLine("Error: no output filename or extension specified");
+			Console::Error->WriteLine("Use - as an output filename to extract to stdout");
 			Console::Error->WriteLine(gcnew String(x_help));
 			return 1;
 		}
@@ -208,9 +208,14 @@ int brawlls(array<String^>^ args) {
 		}
 		return extract_all(matchingNodes[0], dir, ext);
 	} else if (behavior == ProgramBehavior::PRINT_DATA) {
-		values32b_to_cout(matchingNodes[0]->UncompressedSource.Address,
-			matchingNodes[0]->UncompressedSource.Length);
-		return 0;
+		String^ filename = behavior_arguments.Count >= 1 ? behavior_arguments[0] : nullptr;
+		if (filename == nullptr) {
+			Console::Error->WriteLine("Error: no output filename or extension specified");
+			Console::Error->WriteLine("Use - as an output filename to extract to stdout");
+			//Console::Error->WriteLine(gcnew String(x_help));
+			return 1;
+		}
+		return extract_values32b(matchingNodes[0], filename);
 	}
 	
 	// attempt recursive printout of children (not including self)
