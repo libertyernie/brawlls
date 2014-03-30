@@ -7,6 +7,8 @@ using System::Text::StringBuilder;
 using BrawlLib::SSBB::ResourceNodes::ResourceNode;
 #endif
 
+const char* HEADER = "UnsignedInt / FloatingPoint (Text) HexBytes";
+
 unsigned char safe_c(unsigned char c) {
 	return isprint(c) ? c : ' ';
 }
@@ -59,23 +61,29 @@ union entry_4byte {
 };
 
 #ifdef __cplusplus_cli
-bool data_tag_is(const char* tag, ResourceNode^ node) {
-	if (node->UncompressedSource.Length < 4) return false;
-	char* ptr = (char*)(void*)node->UncompressedSource.Address;
-	for (int i = 0; i < 4; i++) {
-		if (ptr[i] != tag[i]) return false;
-	}
-	return true;
-}
-
 String^ stdt_lines(String^ prefix, ResourceNode^ node) {
 	StringBuilder sb;
+
 	entry_4byte* addr = (entry_4byte*)(void*)node->UncompressedSource.Address;
 	int length = node->UncompressedSource.Length / sizeof(entry_4byte);
+
+	int min_addr_digits = 0;
+	for (int l = length; l > 0; l /= 16) {
+		min_addr_digits++;
+	}
+
+	/*sb.Append(prefix);
+	sb.Append((wchar_t)' ', min_addr_digits + 4);
+	sb.Append(gcnew String(HEADER));
+	sb.AppendLine();
+	sb.Append(prefix);
+	sb.Append((wchar_t)' ', min_addr_digits + 4);
+	sb.Append((wchar_t)'-', strlen(HEADER));
+	sb.AppendLine();*/
 	for (int i = 0; i < length; i++) {
 		char buf[entry_4byte::SUMMARY_SIZE];
 		addr[i].summary_to_buffer(buf);
-		sb.AppendLine(prefix + "0x" + (i*4).ToString("X3") + ": " + gcnew String(buf));
+		sb.AppendLine(prefix + "0x" + (i*4).ToString("X"+min_addr_digits) + ": " + gcnew String(buf));
 	}
 	return sb.ToString();
 }

@@ -5,6 +5,7 @@
 #include "find_children.h"
 #include "usage.h"
 #include "isinst.h"
+#include "stdt.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -20,7 +21,7 @@ int usage(String^ error_msg) {
 }
 
 enum class ProgramBehavior {
-	UNDEFINED, NORMAL, EXTRACT, EXTRACT_ALL
+	UNDEFINED, NORMAL, EXTRACT, EXTRACT_ALL, PRINT_DATA
 };
 
 void print_recursive(String^ format, String^ prefix, ResourceNode^ node, bool deep, bool isRoot, int maxdepth) {
@@ -146,6 +147,7 @@ int brawlls(array<String^>^ args) {
 			if (filename == nullptr) filename = argument;
 			else if (behavior == ProgramBehavior::UNDEFINED && argument == "x") behavior = ProgramBehavior::EXTRACT;
 			else if (behavior == ProgramBehavior::UNDEFINED && argument == "xall") behavior = ProgramBehavior::EXTRACT_ALL;
+			else if (behavior == ProgramBehavior::UNDEFINED && argument == "data") behavior = ProgramBehavior::PRINT_DATA;
 			else if (behavior != ProgramBehavior::UNDEFINED) behavior_arguments.Add(argument);
 			else if (nodepath == nullptr) nodepath = argument;
 			else return usage("Error: too many arguments: " + filename + " " + nodepath + " " + argument);
@@ -205,6 +207,9 @@ int brawlls(array<String^>^ args) {
 			return 1;
 		}
 		return extract_all(matchingNodes[0], dir, ext);
+	} else if (behavior == ProgramBehavior::PRINT_DATA) {
+		Console::WriteLine(stdt_lines("", matchingNodes[0]));
+		return 0;
 	}
 	
 	// attempt recursive printout of children (not including self)

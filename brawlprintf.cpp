@@ -7,6 +7,15 @@ using System::Reflection::PropertyInfo;
 using System::Text::StringBuilder;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
+bool data_tag_is(const char* tag, ResourceNode^ node) {
+	if (node->UncompressedSource.Length < 4) return false;
+	char* ptr = (char*)(void*)node->UncompressedSource.Address;
+	for (int i = 0; i < 4; i++) {
+		if (ptr[i] != tag[i]) return false;
+	}
+	return true;
+}
+
 String^ format_obj(String^ format, String^ prefix, Object^ obj) {
 	String^ name = obj == nullptr
 		? "null"
