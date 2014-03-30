@@ -66,7 +66,7 @@ out - the TextWriter to print to
 prefix - a string to append before each line
 node - the node to access the UncompressedSource of
 */
-void values32b_to(TextWriter^ out, String^ prefix, ResourceNode^ node, bool includeHeader) {
+void values32b_to(TextWriter^ out, String^ prefix, ResourceNode^ node) {
 	entry_4byte* addr = (entry_4byte*)(void*)node->UncompressedSource.Address;
 	int bytelength = node->UncompressedSource.Length;
 	int length = bytelength / sizeof(entry_4byte);
@@ -74,21 +74,6 @@ void values32b_to(TextWriter^ out, String^ prefix, ResourceNode^ node, bool incl
 	int min_addr_digits = 0;
 	for (int l = bytelength; l > 0; l /= 16) {
 		min_addr_digits++;
-	}
-
-	if (includeHeader) {
-		out->Write(prefix);
-		out->WriteLine("0x" + bytelength.ToString("X" + min_addr_digits) + " (" + bytelength + " bytes)");
-
-		out->Write(prefix);
-		for (int i = 0; i < min_addr_digits+4; i++) out->Write((wchar_t)' ');
-		out->WriteLine(gcnew String(HEADER));
-
-		size_t hlen = strlen(HEADER);
-		out->Write(prefix);
-		for (int i = 0; i < min_addr_digits+4; i++) out->Write((wchar_t)' ');
-		for (size_t i = 0; i < hlen; i++) out->Write((wchar_t)'-');
-		out->WriteLine();
 	}
 
 	for (int i = 0; i < length; i++) {

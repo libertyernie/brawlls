@@ -208,7 +208,7 @@ int brawlls(array<String^>^ args) {
 		}
 		return extract_all(matchingNodes[0], dir, ext);
 	} else if (behavior == ProgramBehavior::PRINT_DATA) {
-		values32b_to(System::Console::Out, "", matchingNodes[0], true);
+		values32b_to(System::Console::Out, "", matchingNodes[0]);
 		return 0;
 	}
 	
