@@ -1,5 +1,7 @@
-#include <string>
+
 #include <cstdio>
+#include <iomanip>
+#include <iostream>
 
 #ifdef __cplusplus_cli
 using System::String;
@@ -83,3 +85,28 @@ void values32b_to(TextWriter^ out, String^ prefix, ResourceNode^ node) {
 	}
 }
 #endif
+
+/* Write the data printout (in 4-byte fragments) to the specified C++ ostream.
+out - the ostream to print to
+prefix - a string to append before each line
+address, length - the data to print
+*/
+void values32b_to(std::ostream& out, const char* prefix, void* address, size_t bytelength) {
+	entry_4byte* addr = (entry_4byte*)address;
+	size_t length = bytelength / sizeof(entry_4byte);
+
+	int min_addr_digits = 0;
+	for (size_t l = bytelength; l > 0; l /= 16) {
+		min_addr_digits++;
+	}
+
+	for (size_t i = 0; i < length; i++) {
+		char buf[entry_4byte::SUMMARY_SIZE];
+		addr[i].summary_to_buffer(buf);
+		out << prefix << "0x" << std::setfill('0') << std::setw(min_addr_digits) << std::hex << i*sizeof(entry_4byte) << ": " << buf << std::endl;
+	}
+}
+
+void values32b_to_cout(void* address, size_t bytelength) {
+	values32b_to(std::cout, "", address, bytelength);
+}
