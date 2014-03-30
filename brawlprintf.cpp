@@ -1,10 +1,11 @@
 #include "isinst.h"
-#include "stdt.h"
+#include "values32b.h"
 
 using namespace System;
 using System::ComponentModel::CategoryAttribute;
 using System::Reflection::PropertyInfo;
 using System::Text::StringBuilder;
+using System::IO::StringWriter;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
 bool data_tag_is(const char* tag, ResourceNode^ node) {
@@ -76,7 +77,9 @@ String^ details_str(String^ prefix, ResourceNode^ node) {
 	if (isinst<STPMEntryNode^>(node)) {
 		return properties_lines(prefix, node);
 	} else if (data_tag_is("STDT", node)) {
-		return stdt_lines(prefix, node);
+		StringWriter sw;
+		values32b_to(%sw, prefix, node, false);
+		return sw.ToString();
 	} else {
 		return nullptr;
 	}

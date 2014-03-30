@@ -5,7 +5,7 @@
 #include "find_children.h"
 #include "usage.h"
 #include "isinst.h"
-#include "stdt.h"
+#include "values32b.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -208,7 +208,7 @@ int brawlls(array<String^>^ args) {
 		}
 		return extract_all(matchingNodes[0], dir, ext);
 	} else if (behavior == ProgramBehavior::PRINT_DATA) {
-		Console::WriteLine(stdt_lines("", matchingNodes[0]));
+		values32b_to(System::Console::Out, "", matchingNodes[0], true);
 		return 0;
 	}
 	

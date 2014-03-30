@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus_cli
 using System::String;
-using System::Text::StringBuilder;
+using System::IO::TextWriter;
 using BrawlLib::SSBB::ResourceNodes::ResourceNode;
 #endif
 
@@ -61,30 +61,40 @@ union entry_4byte {
 };
 
 #ifdef __cplusplus_cli
-String^ stdt_lines(String^ prefix, ResourceNode^ node) {
-	StringBuilder sb;
-
+/* Write the data printout (in 4-byte fragments) to the specified .NET TextWriter.
+out - the TextWriter to print to
+prefix - a string to append before each line
+node - the node to access the UncompressedSource of
+*/
+void values32b_to(TextWriter^ out, String^ prefix, ResourceNode^ node, bool includeHeader) {
 	entry_4byte* addr = (entry_4byte*)(void*)node->UncompressedSource.Address;
-	int length = node->UncompressedSource.Length / sizeof(entry_4byte);
+	int bytelength = node->UncompressedSource.Length;
+	int length = bytelength / sizeof(entry_4byte);
 
 	int min_addr_digits = 0;
-	for (int l = length; l > 0; l /= 16) {
+	for (int l = bytelength; l > 0; l /= 16) {
 		min_addr_digits++;
 	}
 
-	/*sb.Append(prefix);
-	sb.Append((wchar_t)' ', min_addr_digits + 4);
-	sb.Append(gcnew String(HEADER));
-	sb.AppendLine();
-	sb.Append(prefix);
-	sb.Append((wchar_t)' ', min_addr_digits + 4);
-	sb.Append((wchar_t)'-', strlen(HEADER));
-	sb.AppendLine();*/
+	if (includeHeader) {
+		out->Write(prefix);
+		out->WriteLine("0x" + bytelength.ToString("X" + min_addr_digits) + " (" + bytelength + " bytes)");
+
+		out->Write(prefix);
+		for (int i = 0; i < min_addr_digits+4; i++) out->Write((wchar_t)' ');
+		out->WriteLine(gcnew String(HEADER));
+
+		size_t hlen = strlen(HEADER);
+		out->Write(prefix);
+		for (int i = 0; i < min_addr_digits+4; i++) out->Write((wchar_t)' ');
+		for (size_t i = 0; i < hlen; i++) out->Write((wchar_t)'-');
+		out->WriteLine();
+	}
+
 	for (int i = 0; i < length; i++) {
 		char buf[entry_4byte::SUMMARY_SIZE];
 		addr[i].summary_to_buffer(buf);
-		sb.AppendLine(prefix + "0x" + (i*4).ToString("X"+min_addr_digits) + ": " + gcnew String(buf));
+		out->WriteLine(prefix + "0x" + (i*sizeof(entry_4byte)).ToString("X"+min_addr_digits) + ": " + gcnew String(buf));
 	}
-	return sb.ToString();
 }
 #endif
