@@ -9,6 +9,8 @@ using namespace System::IO;
 using System::Collections::Generic::List;
 using BrawlLib::SSBB::ResourceNodes::ResourceNode;
 
+const char* UNCOMP_SRC_WARNING = "Note: reading uncompressed source - in certain cases (e.g. the BRES entry header), this may differ from what would be written to a file.";
+
 int extract(ResourceNode^ node, String^ filename) {
 	if (String::IsNullOrEmpty(filename)) {
 		Console::Error->WriteLine("x: no arguments specified");
@@ -17,7 +19,7 @@ int extract(ResourceNode^ node, String^ filename) {
 	}
 
 	if (filename == "-") {
-		Console::Error->WriteLine("Note: exporting uncompressed source - in certain cases (e.g. the BRES entry header), this may differ from what would be written to a file.");
+		Console::Error->WriteLine(gcnew String(UNCOMP_SRC_WARNING));
 		_setmode(_fileno(stdout), O_BINARY);
 		fwrite(node->UncompressedSource.Address, 1, node->UncompressedSource.Length, stdout);
 		return 0;
@@ -53,13 +55,13 @@ int extract_all(ResourceNode^ parent, String^ dirname, String^ ext) {
 
 int extract_values32b(ResourceNode^ node, String^ filename) {
 	if (String::IsNullOrEmpty(filename)) {
-		Console::Error->WriteLine("values: no arguments specified");
-		Console::Error->WriteLine("Use [... values filename], [... values .extension] or [... values -]");
+		Console::Error->WriteLine("vals: no arguments specified");
+		Console::Error->WriteLine("Use [... vals filename], [... vals .extension] or [... vals -]");
 		return 1;
 	}
 
+	Console::Error->WriteLine(gcnew String(UNCOMP_SRC_WARNING));
 	if (filename == "-") {
-		Console::Error->WriteLine("Note: reading uncompressed source - in certain cases (e.g. the BRES entry header), this may differ from what would be written to a file.");
 		values32b_to_cout(node->UncompressedSource.Address, node->UncompressedSource.Length);
 		return 0;
 	}

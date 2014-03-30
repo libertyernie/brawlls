@@ -88,9 +88,7 @@
     <ClCompile Include="brawlextract.cpp" />
     <ClCompile Include="brawlls.cpp" />
     <ClCompile Include="brawlprintf.cpp" />
-    <ClCompile Include="brawlsdiff.cpp" />
     <ClCompile Include="find_children.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="values32b.cpp" />
   </ItemGroup>
   <ItemGroup>
