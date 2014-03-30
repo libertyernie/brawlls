@@ -28,13 +28,13 @@ union entry_4byte {
 	DDDDDDDDDD / FFFFFFFFFFFF (AAAA) HHHHHHHH
 	DD = integer representation of data
 	FF = floating-point representation of data
-	AAAA = ASCII representation of data (non-printable characters replaced with spaces)
+	AAAA = ASCII representation of data (opposite endian)
 	HH = data as four hexadecimal bytes */
 	void summary_to_buffer(char* dest) {
 		char* self_ptr = ptr();
 		char as_ascii[4];
 		for (int z = 0; z < 4; z++) {
-			as_ascii[z] = safe_c(self_ptr[z]);
+			as_ascii[z] = safe_c(self_ptr[3-z]);
 		}
 		sprintf(dest, "%10d / %12g (%.4s) %08X", i, f, as_ascii, i);
 	}
@@ -63,7 +63,7 @@ String^ stdt_lines(String^ prefix, ResourceNode^ node) {
 	StringBuilder sb;
 	entry_4byte* addr = (entry_4byte*)(void*)node->UncompressedSource.Address;
 	int length = node->UncompressedSource.Length / sizeof(entry_4byte);
-	for (int i = 5; i < length; i++) {
+	for (int i = 0; i < length; i++) {
 		char buf[entry_4byte::SUMMARY_SIZE];
 		addr[i].rv_endian().summary_to_buffer(buf);
 		sb.AppendLine(prefix + "0x" + (i*4).ToString("X3") + ": " + gcnew String(buf));
