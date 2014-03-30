@@ -61,11 +61,11 @@ void cleanup() {
 }
 
 void stdin_to_file(String^ tmpfile) {
-	Stream^ stdin = Console::OpenStandardInput();
+	Stream^ clistdin = Console::OpenStandardInput();
 	Stream^ outstream = gcnew FileStream(tmpfile, FileMode::Create, FileAccess::Write);
 	array<unsigned char>^ buffer = gcnew array<unsigned char>(2048);
 	int bytes;
-	while ((bytes = stdin->Read(buffer, 0, buffer->Length)) > 0) {
+	while ((bytes = clistdin->Read(buffer, 0, buffer->Length)) > 0) {
 		outstream->Write(buffer, 0, bytes);
 	}
 	outstream->Close();
@@ -208,7 +208,8 @@ int brawlls(array<String^>^ args) {
 		}
 		return extract_all(matchingNodes[0], dir, ext);
 	} else if (behavior == ProgramBehavior::PRINT_DATA) {
-		values32b_to(System::Console::Out, "", matchingNodes[0]);
+		values32b_to_cout(matchingNodes[0]->UncompressedSource.Address,
+			matchingNodes[0]->UncompressedSource.Length);
 		return 0;
 	}
 	
