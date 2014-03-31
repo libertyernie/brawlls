@@ -21,11 +21,22 @@ int main(int argc, char** argv) {
 		cerr << "If the filename is omitted, the program will read from standard input." << endl;
 		return hashelparg(argc, argv) ? EXIT_SUCCESS : EXIT_FAILURE;
 	}
+
+	VALUES32B_OPTIONS opts;
+	opts.add_to_address_printout = 0;
+	opts.min_addr_digits = 0;
+
 	FILE* in;
 	if (argc == 1) {
 		in = stdin;
 	} else {
 		in = fopen(argv[1], "rb");
+
+		fseek(in, 0, SEEK_END);
+		for (long l = ftell(in); l > 0; l /= 16) {
+			opts.min_addr_digits++;
+		}
+		fseek(in, 0, SEEK_SET);
 	}
 
 	cout << "Addr: " << VALUES32B_HEADER << endl;
@@ -36,10 +47,9 @@ int main(int argc, char** argv) {
 
 	char* buf = new char[V32B_BUFFER];
 	int bytes_read;
-	size_t add_to_addr = 0;
 	while ((bytes_read = fread(buf, 1, V32B_BUFFER, in)) > 0) {
-		values32b_to_cout(buf, bytes_read, add_to_addr);
-		add_to_addr += bytes_read;
+		values32b_to_cout(buf, bytes_read, opts);
+		opts.add_to_address_printout += bytes_read;
 	}
 	delete[] buf;
 }

@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include "values32b.h"
 
 #ifdef __cplusplus_cli
 using System::String;
@@ -64,21 +65,23 @@ union entry_4byte {
 out - the ostream to print to
 prefix - a string to append before each line
 address, length - the data to print
-start_counting_at - the index to start the list of addresses at. Use this if you're calling values32b_to multiple times for the same data.
+VALUES32B_OPTIONS.add_to_address_printout - the index to start the list of addresses at. Use this if you're calling values32b_to multiple times for the same data.
+VALUES32B_OPTIONS.min_addr_digits - The number of digits used to show the address is the maximum of either this number or the number needed to show the length.
 */
-void values32b_to(std::ostream& out, const char* prefix, void* address, size_t bytelength, size_t start_counting_at) {
+void values32b_to(std::ostream& out, const char* prefix, void* address, size_t bytelength, VALUES32B_OPTIONS opts) {
 	entry_4byte* addr = (entry_4byte*)address;
 	size_t length = bytelength / sizeof(entry_4byte);
 
 	int min_addr_digits = 0;
-	for (size_t l = bytelength + start_counting_at; l > 0; l /= 16) {
+	for (size_t l = bytelength + opts.add_to_address_printout; l > 0; l /= 16) {
 		min_addr_digits++;
 	}
+	if (opts.min_addr_digits > min_addr_digits) min_addr_digits = opts.min_addr_digits;
 
 	for (size_t i = 0; i < length; i++) {
 		char buf[entry_4byte::SUMMARY_SIZE];
 		addr[i].summary_to_buffer(buf);
-		size_t current_address = start_counting_at + i*sizeof(entry_4byte);
+		size_t current_address = opts.add_to_address_printout + i*sizeof(entry_4byte);
 		out << prefix << "0x" << std::setfill('0') << std::setw(min_addr_digits) << std::hex << current_address << ": " << buf << std::endl;
 	}
 
@@ -88,7 +91,7 @@ void values32b_to(std::ostream& out, const char* prefix, void* address, size_t b
 		size_t remainder = bytelength - end_addr;
 		char* charptr = ((char*)address) + end_addr;
 
-		size_t current_address = start_counting_at + end_addr;
+		size_t current_address = opts.add_to_address_printout + end_addr;
 		out << prefix << "0x" << std::setfill('0') << std::setw(min_addr_digits) << std::hex << current_address << ": "
 			<< "                                   ";
 		for (size_t i = 0; i < remainder; i++) {
@@ -98,16 +101,16 @@ void values32b_to(std::ostream& out, const char* prefix, void* address, size_t b
 	}
 }
 
-void values32b_to_cout(void* address, size_t bytelength, size_t add_to_addr) {
-	values32b_to(std::cout, "", address, bytelength, add_to_addr);
+void values32b_to_cout(void* address, size_t bytelength, VALUES32B_OPTIONS opts) {
+	values32b_to(std::cout, "", address, bytelength, opts);
 }
 
 void values32b_to(std::ostream& out, const char* prefix, void* address, size_t bytelength) {
-	values32b_to(out, prefix, address, bytelength, 0);
+	values32b_to(out, prefix, address, bytelength, VALUES32B_DEFAULT_OPTIONS);
 }
 
 void values32b_to_cout(void* address, size_t bytelength) {
-	values32b_to(std::cout, "", address, bytelength, 0);
+	values32b_to(std::cout, "", address, bytelength, VALUES32B_DEFAULT_OPTIONS);
 }
 
 #ifdef __cplusplus_cli
