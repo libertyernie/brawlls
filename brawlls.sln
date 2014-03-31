@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "brawlls", "brawlls.vcxproj"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlLib", "..\brawltools\BrawlLib\BrawlLib.csproj", "{462D0BBF-CE82-405B-8848-2F91E9E14C55}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "values32b", "values32b\values32b.vcxproj", "{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		_DEBUG|Any CPU = _DEBUG|Any CPU
@@ -92,6 +94,33 @@ Global
 		{462D0BBF-CE82-405B-8848-2F91E9E14C55}.Release|x64.Build.0 = Release|x64
 		{462D0BBF-CE82-405B-8848-2F91E9E14C55}.Release|x86.ActiveCfg = Release|x86
 		{462D0BBF-CE82-405B-8848-2F91E9E14C55}.Release|x86.Build.0 = Release|x86
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}._DEBUG|Any CPU.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}._DEBUG|Itanium.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}._DEBUG|Mixed Platforms.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}._DEBUG|Mixed Platforms.Build.0 = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}._DEBUG|Win32.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}._DEBUG|Win32.Build.0 = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}._DEBUG|x64.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}._DEBUG|x86.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}._DEBUG|x86.Build.0 = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Debug|Itanium.ActiveCfg = Debug|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Debug|Win32.Build.0 = Debug|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Debug|x64.ActiveCfg = Debug|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Debug|x86.ActiveCfg = Debug|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Debug|x86.Build.0 = Debug|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Release|Any CPU.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Release|Itanium.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Release|Win32.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Release|Win32.Build.0 = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Release|x64.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Release|x86.ActiveCfg = Release|Win32
+		{9A8C9B1A-27B7-4010-87EF-C77EF4FD0081}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,8 +9,6 @@ using System::IO::TextWriter;
 using BrawlLib::SSBB::ResourceNodes::ResourceNode;
 #endif
 
-const char* HEADER = "UnsignedInt / FloatingPoint (Text) HexBytes";
-
 unsigned char safe_c(unsigned char c) {
 	return isprint(c) ? c : ' ';
 }
@@ -66,25 +64,50 @@ union entry_4byte {
 out - the ostream to print to
 prefix - a string to append before each line
 address, length - the data to print
+start_counting_at - the index to start the list of addresses at. Use this if you're calling values32b_to multiple times for the same data.
 */
-void values32b_to(std::ostream& out, const char* prefix, void* address, size_t bytelength) {
+void values32b_to(std::ostream& out, const char* prefix, void* address, size_t bytelength, size_t start_counting_at) {
 	entry_4byte* addr = (entry_4byte*)address;
 	size_t length = bytelength / sizeof(entry_4byte);
 
 	int min_addr_digits = 0;
-	for (size_t l = bytelength; l > 0; l /= 16) {
+	for (size_t l = bytelength + start_counting_at; l > 0; l /= 16) {
 		min_addr_digits++;
 	}
 
 	for (size_t i = 0; i < length; i++) {
 		char buf[entry_4byte::SUMMARY_SIZE];
 		addr[i].summary_to_buffer(buf);
-		out << prefix << "0x" << std::setfill('0') << std::setw(min_addr_digits) << std::hex << i*sizeof(entry_4byte) << ": " << buf << std::endl;
+		size_t current_address = start_counting_at + i*sizeof(entry_4byte);
+		out << prefix << "0x" << std::setfill('0') << std::setw(min_addr_digits) << std::hex << current_address << ": " << buf << std::endl;
+	}
+
+	// handle remainder
+	size_t end_addr = length * sizeof(entry_4byte);
+	if (end_addr != bytelength) {
+		size_t remainder = bytelength - end_addr;
+		char* charptr = ((char*)address) + end_addr;
+
+		size_t current_address = start_counting_at + end_addr;
+		out << prefix << "0x" << std::setfill('0') << std::setw(min_addr_digits) << std::hex << current_address << ": "
+			<< "                                   ";
+		for (size_t i = 0; i < remainder; i++) {
+			out << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << (unsigned int)charptr[i];
+		}
+		out << std::endl;
 	}
 }
 
+void values32b_to_cout(void* address, size_t bytelength, size_t add_to_addr) {
+	values32b_to(std::cout, "", address, bytelength, add_to_addr);
+}
+
+void values32b_to(std::ostream& out, const char* prefix, void* address, size_t bytelength) {
+	values32b_to(out, prefix, address, bytelength, 0);
+}
+
 void values32b_to_cout(void* address, size_t bytelength) {
-	values32b_to(std::cout, "", address, bytelength);
+	values32b_to(std::cout, "", address, bytelength, 0);
 }
 
 #ifdef __cplusplus_cli
@@ -105,7 +128,7 @@ String^ values32b_to_clistr(String^ prefix, ResourceNode^ node) {
 	return gcnew String(oss.str().c_str());
 }
 
-void values32b_to_cout(BrawlLib::SSBB::ResourceNodes::ResourceNode^ node) {
+void values32b_to_cout(ResourceNode^ node) {
 	values32b_to_cout(node->OriginalSource.Address, node->OriginalSource.Length);
 }
 #endif
