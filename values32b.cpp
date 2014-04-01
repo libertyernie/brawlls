@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -16,7 +17,7 @@ unsigned char safe_c(unsigned char c) {
 
 bool is_big_endian() {
 	union {
-		unsigned __int32 i;
+		uint32_t i;
 		char c[4];
 	} t = { 0x01020304 };
 	return t.c[0] == 1;
@@ -32,15 +33,12 @@ void VALUES32B_OPTIONS::increase_min_addr_digits(size_t max_address) {
 
 union entry_4byte {
 	float f;
-	__int32 i;
+	int32_t i;
 
 	/* Returns a char* pointer to the union's data. */
 	char* ptr() {
 		return (char*)&i;
 	}
-
-	/* The size of the summary string written by summary_to_buffer, including null-terminator byte. */
-	static const size_t SUMMARY_SIZE = 44;
 
 	/* Writes a summary string to the memory pointed at by dest, which must have at least SUMMARY_SIZE bytes available.
 	The format of the string is:
@@ -87,7 +85,7 @@ void values32b_to(std::ostream& out, void* address, size_t bytelength, VALUES32B
 	if (opts.min_addr_digits > min_addr_digits) min_addr_digits = opts.min_addr_digits;
 
 	for (size_t i = 0; i < length; i++) {
-		char buf[entry_4byte::SUMMARY_SIZE];
+		char buf[VALUES32B_SUMMARY_SIZE];
 		addr[i].summary_to_buffer(buf);
 		size_t current_address = opts.add_to_address_printout + i*sizeof(entry_4byte);
 		if (opts.prefix != nullptr) out << opts.prefix;

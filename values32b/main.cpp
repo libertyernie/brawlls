@@ -1,6 +1,8 @@
 #include "../values32b.h"
 #include <iostream>
 #include <cstring>
+#include <cstdlib>
+#include <cstdio>
 
 using namespace std;
 
