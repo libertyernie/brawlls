@@ -131,10 +131,16 @@ String^ values32b_to_clistr(String^ prefix, ResourceNode^ node) {
 	}
 	prefix_buf[prefix->Length] = '\0';
 
+	VALUES32B_OPTIONS opts;
+	opts.add_to_address_printout = 0;
+	opts.min_addr_digits = 0; // values32b_to will make it larger based on the length variable
+	opts.prefix = prefix_buf;
+
 	std::ostringstream oss;
-	values32b_to(oss, prefix_buf,
+	values32b_to(oss,
 		node->OriginalSource.Address,
-		node->OriginalSource.Length);
+		node->OriginalSource.Length,
+		opts);
 	delete[] prefix_buf;
 	
 	return gcnew String(oss.str().c_str());
