@@ -118,17 +118,17 @@ int brawlls(array<String^>^ args) {
 			Console::WriteLine(gcnew String(usage_line));
 			Console::WriteLine(gcnew String(usage_desc));
 			return 0;
-		}
-		if (argument == "--formathelp") {
+		} else if (argument == "--formathelp") {
 			Console::WriteLine(gcnew String(format_help));
 			return 0;
-		}
-		if (argument == "--xallhelp") {
+		} else if (argument == "--xallhelp") {
 			Console::WriteLine(gcnew String(xall_help));
 			return 0;
-		}
-		if (argument == "--valshelp") {
+		} else if (argument == "--valshelp") {
 			Console::WriteLine(gcnew String(vals_help));
+			return 0;
+		} else if (argument == "--license") {
+			Console::WriteLine(gcnew String(LICENSE));
 			return 0;
 		}
 		if (argument == "--self") printSelf = true;
