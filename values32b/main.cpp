@@ -13,6 +13,16 @@ bool hashelparg(int argc, char** argv) {
 	return false;
 }
 
+void print_header(size_t addr_digits) {
+	for (int i = 2; i < addr_digits; i++) cout << ' ';
+
+	cout << "Addr: " << VALUES32B_HEADER << endl;
+	for (int i = 0; i < strlen(VALUES32B_HEADER) + addr_digits + 4; i++) {
+		cout << '-';
+	}
+	cout << endl;
+}
+
 const int V32B_BUFFER = 1048576;
 
 int main(int argc, char** argv) {
@@ -24,7 +34,8 @@ int main(int argc, char** argv) {
 
 	VALUES32B_OPTIONS opts;
 	opts.add_to_address_printout = 0;
-	opts.min_addr_digits = 0;
+	opts.min_addr_digits = 2;
+	opts.prefix = nullptr;
 
 	FILE* in;
 	if (argc == 1) {
@@ -32,24 +43,26 @@ int main(int argc, char** argv) {
 	} else {
 		in = fopen(argv[1], "rb");
 
-		fseek(in, 0, SEEK_END);
-		for (long l = ftell(in); l > 0; l /= 16) {
-			opts.min_addr_digits++;
+		if (in == NULL) {
+			cerr << "Cannot open file: " << argv[1] << endl;
+			return EXIT_FAILURE;
 		}
+
+		fseek(in, 0, SEEK_END);
+		increase_min_addr_digits(&opts, ftell(in)); // expand digit space to show max address of the file
 		fseek(in, 0, SEEK_SET);
 	}
 
-	cout << "Addr: " << VALUES32B_HEADER << endl;
-	for (int i = 0; i < strlen(VALUES32B_HEADER) + 6; i++) {
-		cout << '-';
-	}
-	cout << endl;
-
 	char* buf = new char[V32B_BUFFER];
-	int bytes_read;
-	while ((bytes_read = fread(buf, 1, V32B_BUFFER, in)) > 0) {
+	int bytes_read = fread(buf, 1, V32B_BUFFER, in); // read first chunk
+	increase_min_addr_digits(&opts, bytes_read); // expand digit space to show max address of this chunk
+	print_header(opts.min_addr_digits);
+
+	while (bytes_read > 0) {
 		values32b_to_cout(buf, bytes_read, opts);
 		opts.add_to_address_printout += bytes_read;
+		cout << "b,," << bytes_read << endl;
+		bytes_read = fread(buf, 1, V32B_BUFFER, in); // read next chunk
 	}
 	delete[] buf;
 }
