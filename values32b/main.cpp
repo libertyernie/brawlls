@@ -63,7 +63,6 @@ int main(int argc, char** argv) {
 	while (bytes_read > 0) {
 		values32b_to_cout(buf, bytes_read, opts);
 		opts.add_to_address_printout += bytes_read;
-		cout << "b,," << bytes_read << endl;
 		bytes_read = fread(buf, 1, V32B_BUFFER, in); // read next chunk
 	}
 	delete[] buf;

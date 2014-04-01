@@ -100,7 +100,18 @@ void values32b_to(std::ostream& out, void* address, size_t bytelength, VALUES32B
 
 		size_t current_address = opts.add_to_address_printout + end_addr;
 		if (opts.prefix != nullptr) out << opts.prefix;
-		out << "0x" << std::setfill('0') << std::setw(min_addr_digits) << std::hex << current_address << ": " << "                                   ";
+		out << "0x" << std::setfill('0') << std::setw(min_addr_digits) << std::hex << current_address << ": ";
+		for (size_t i = 0; i < VALUES32B_SUMMARY_SIZE-16; i++) {
+			out << ' ';
+		}
+		out << '(';
+		for (size_t i = 0; i < remainder; i++) {
+			out << safe_c(charptr[i]);
+		}
+		for (size_t i = remainder; i < 4; i++) {
+			out << ' ';
+		}
+		out << ") ";
 		for (size_t i = 0; i < remainder; i++) {
 			out << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << (unsigned int)charptr[i];
 		}
