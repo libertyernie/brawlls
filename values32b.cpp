@@ -22,12 +22,12 @@ bool is_big_endian() {
 	return t.c[0] == 1;
 }
 
-void increase_min_addr_digits(VALUES32B_OPTIONS* opts, size_t max_address) {
+void VALUES32B_OPTIONS::increase_min_addr_digits(size_t max_address) {
 	size_t digits = 0;
 	for (size_t l = max_address; l > 0; l /= 16) {
 		digits++;
 	}
-	if (digits > opts->min_addr_digits) opts->min_addr_digits = digits;
+	if (digits > this->min_addr_digits) this->min_addr_digits = digits;
 }
 
 union entry_4byte {

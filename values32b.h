@@ -4,10 +4,10 @@ struct VALUES32B_OPTIONS {
 	size_t add_to_address_printout;
 	size_t min_addr_digits;
 	const char* prefix;
+	void increase_min_addr_digits(size_t max_address);
 };
 
 const VALUES32B_OPTIONS VALUES32B_DEFAULT_OPTIONS{0, 0, nullptr};
-void increase_min_addr_digits(VALUES32B_OPTIONS* opts, size_t max_address);
 
 void values32b_to(std::ostream& out, void* address, size_t bytelength, VALUES32B_OPTIONS opts);
 void values32b_to(std::ostream& out, void* address, size_t bytelength);

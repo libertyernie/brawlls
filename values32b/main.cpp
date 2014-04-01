@@ -49,13 +49,13 @@ int main(int argc, char** argv) {
 		}
 
 		fseek(in, 0, SEEK_END);
-		increase_min_addr_digits(&opts, ftell(in)); // expand digit space to show max address of the file
+		opts.increase_min_addr_digits(ftell(in)); // expand digit space to show max address of the file
 		fseek(in, 0, SEEK_SET);
 	}
 
 	char* buf = new char[V32B_BUFFER];
 	int bytes_read = fread(buf, 1, V32B_BUFFER, in); // read first chunk
-	increase_min_addr_digits(&opts, bytes_read); // expand digit space to show max address of this chunk
+	opts.increase_min_addr_digits(bytes_read); // expand digit space to show max address of this chunk
 	print_header(opts.min_addr_digits);
 
 	while (bytes_read > 0) {
