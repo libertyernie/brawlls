@@ -14,7 +14,8 @@ which ever have children):
 	function into a standalone program that can deal with generic data.
 
 Additionally, when printing a model bone (MDL0BoneNode), the translation,
-rotation, and scale of the bone will be appended to the end of the line.
+rotation, and scale of the bone will be appended to the end of the line,
+unless you add the command --no-bone.
 
     ./brawlls.exe STGFINAL.PAC 2/ModelData[100]/3D*/stagePosition/Bones/stagePosition
 
@@ -27,7 +28,44 @@ rotation, and scale of the bone will be appended to the end of the line.
 STDT nodes / values32b
 ----------------------
 
-Not written yet.
+The default behavior for showing STDT nodes is to print every four bytes in
+multiple interpretations. The columns (in order) are:
+* Address
+* Bytes as integer (in decimal)
+* Bytes as floating point
+* Bytes as ASCII data
+* Bytes in raw hexadecimal format
+
+	brawlls.exe STGMETALGEAR_00.PAC 2/MiscData[20]
+
+	0x00:  1398031444 /  9.11679e+011 (STDT) 53544454
+	0x04:           1 /   1.4013e-045 (    ) 00000001
+	0x08:           0 /             0 (    ) 00000000
+	0x0c:           0 /             0 (    ) 00000000
+	0x10:          20 /   2.8026e-044 (    ) 00000014
+	0x14:  1045220557 /           0.2 (>L  ) 3E4CCCCD
+	0x18:  1053609165 /           0.4 (>   ) 3ECCCCCD
+	0x1c:  1050253722 /           0.3 (>   ) 3E99999A
+	0x20:  1036831949 /           0.1 (=   ) 3DCCCCCD
+	...
+
+You can also force this behavior for any data node with the "vals" command
+(although it isn't usually that useful):
+
+	brawlls.exe STGMETALGEAR_00.PAC 2/STPM vals -
+
+	0x000:  1398034509 /   9.1188e+011 (STPM) 5354504D
+	0x004:           1 /   1.4013e-045 (    ) 00000001
+	0x008:           0 /             0 (    ) 00000000
+	0x00c:           0 /             0 (    ) 00000000
+	0x010:          20 /   2.8026e-044 (    ) 00000014
+	0x014:     3939584 /  5.52053e-039 ( <  ) 003C1D00
+	0x018:  1065353216 /             1 (?   ) 3F800000
+	0x01c:  1109393408 /            40 (B   ) 42200000
+	0x020:  1103101952 /            24 (A   ) 41C00000
+	0x024:  1095761920 /            13 (AP  ) 41500000
+	0x028:  1684275397 /  1.68237e+022 (dd  ) 646400C5
+	...
 
 Recursion
 ---------

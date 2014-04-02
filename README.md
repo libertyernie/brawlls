@@ -21,34 +21,45 @@ a temporary file, work from there, and delete the file when it's done.
 `[path within file]` describes the particular node in the file you want to
 list the children of. For example, the command:
 
-    brawlls.exe STGFINAL.PAC 2/ModelData[1]/3DModels(NW4R)
+    brawlls.exe FitKirby00.pcs TextureData[0]/Textures(NW4R)
 
-lists the 3D models in ModelData[1] - the same thing you would see if you
-opened STGFINAL.PAC with BrawlBox and navigated to 2 -> ModelData[1] ->
-3DModels(NW4R). In this case, the output (for Brawl's STGFINAL.pac) is:
+lists the textures in Kirby's default color - the same thing you would see if
+you opened FitKirby00.pcs with BrawlBox and navigated to TextureData[0] ->
+Textures(NW4R). In this case, the output is:
 
-    +0 StgFinal00space
+	+0 PlyKirby5KEye.1
+	+1 PlyKirby5KEye.2
+	+2 PlyKirby5KEye.3
+	+3 PlyKirby5KEye.4
+	+4 PlyKirby5KEyeYellow.1
+	+5 PlyKirby5KEyeYellow.2
+	+6 PlyKirby5KEyeYellow.3
+	+7 PlyKirby5KEyeYellow.4
+	+8 PlyKirby5KFoot
+	+9 PlyKirby5KMouth
+	+10 PlyKirby5KSkin
 
 By index
 --------
 
 brawlls also supports choosing a node based on its index within the file. The
-+0 next to StgFinal00space in the line above means that StgFinal00space is the
-first child of 3DModels(NW4R) (if there were a second child, it would be +1,
-and so on.) We could have typed this command for the same result:
++0 next to PlyKirby5KEye.1 in the line above means that PlyKirby5KEye.1 is the
+first child of Textures(NW4R) (the second child is +1, and so on.) Since
+TextureData[0] is the second node in Fitkirby00.pcs, and Textures(NW4R) is the
+only folder inside it, we could have typed this command for the same result:
 
-    brawlls.exe STGFINAL.PAC +1/+0/+0
+    brawlls.exe FitKirby00.pcs +1/+0
 
 brawlls will even add a slash before a plus if there isn't one, so you can
 also do this:
 
-	brawlls.exe STGFINAL.PAC +1+0+0
+	brawlls.exe FitKirby00.pcs +1+0
 
 Wildcards are supported in node names - however, brawlls.exe throws an error
 if more than one node matches the wildcard. Also note that you can combine
 names and indicies in the same path.
 
-	brawlls.exe STGFINAL.PAC +1+0/3DMod*
+	brawlls.exe STGFINAL.PAC +1/Tex*
 
 Usage example
 -------------
@@ -90,7 +101,8 @@ In this command, "2" is a name, because it doesn't come after a plus (+), but
 	Fox! Be careful! I have a bad
 	feeling about this.
 
-...and so on.
+...and so on. (See README2.md for more information about MSBin nodes and other
+special cases.)
 
 Extracting files
 ----------------
