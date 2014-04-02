@@ -78,7 +78,6 @@ ResourceNode^ load_node_from_file_or_stdin(String^ filename) {
 		// write contents of stdin to a temporary file
 		String^ tmpfile = Path::GetTempFileName();
 		stdin_to_file(tmpfile);
-		Console::WriteLine(tmpfile);
 		node = NodeFactory::FromFile(nullptr, tmpfile);
 		cleanup_args::tempFile = node;
 		atexit(cleanup);

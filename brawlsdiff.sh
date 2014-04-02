@@ -17,4 +17,6 @@ f2="$2"
 shift
 shift
 brawlls_args="$*"
-sdiff $width_arg -s <(< "$f1" ~/brawlls.exe -m --deep $brawlls_args -) <(< "$f2" ~/brawlls.exe -m --deep $brawlls_args -)
+sdiff $width_arg -s -t \
+<(echo "$f1"; < "$f1" ~/brawlls.exe -m --deep $brawlls_args - | dos2unix) \
+<(echo "$f2"; < "$f2" ~/brawlls.exe -m --deep $brawlls_args - | dos2unix)

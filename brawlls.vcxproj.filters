@@ -59,5 +59,6 @@
     <None Include="LICENSE" />
     <None Include=".gitignore" />
     <None Include="brawlsdiff.sh" />
+    <None Include="README2.md" />
   </ItemGroup>
 </Project>

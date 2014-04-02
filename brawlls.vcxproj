@@ -104,6 +104,7 @@
     <None Include="brawlsdiff.sh" />
     <None Include="LICENSE" />
     <None Include="README.md" />
+    <None Include="README2.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\brawltools\BrawlLib\BrawlLib.csproj">
