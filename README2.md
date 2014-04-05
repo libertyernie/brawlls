@@ -50,22 +50,10 @@ multiple interpretations. The columns (in order) are:
 	...
 
 You can also force this behavior for any data node with the "vals" command
-(although it isn't usually that useful):
+(although it isn't usually that useful).
 
-	brawlls.exe STGMETALGEAR_00.PAC 2/STPM vals -
-
-	0x000:  1398034509 /   9.1188e+011 (STPM) 5354504D
-	0x004:           1 /   1.4013e-045 (    ) 00000001
-	0x008:           0 /             0 (    ) 00000000
-	0x00c:           0 /             0 (    ) 00000000
-	0x010:          20 /   2.8026e-044 (    ) 00000014
-	0x014:     3939584 /  5.52053e-039 ( <  ) 003C1D00
-	0x018:  1065353216 /             1 (?   ) 3F800000
-	0x01c:  1109393408 /            40 (B   ) 42200000
-	0x020:  1103101952 /            24 (A   ) 41C00000
-	0x024:  1095761920 /            13 (AP  ) 41500000
-	0x028:  1684275397 /  1.68237e+022 (dd  ) 646400C5
-	...
+The program values32b.exe implements this behavior outside of brawlls, so you
+can run it on any file. See README.md in the values32b folder for more info.
 
 Recursion
 ---------

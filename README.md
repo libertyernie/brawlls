@@ -61,49 +61,6 @@ names and indicies in the same path.
 
 	brawlls.exe STGFINAL.PAC +1/Tex*
 
-Usage example
--------------
-
-    brawlls.exe STGDXCORNERIA.pac
-
-This command gives:
-
-	+0 1
-	+1 2
-	+2 ef_StgDxCorneria
-
-We're interested in the node "2", and we might want also to know what type
-each object is, so we'll add the -t argument.
-
-    brawlls.exe STGDXCORNERIA.pac 2 -t
-
-Among other things, we see:
-
-    ...
-    +15 MiscData[0] (MSBinNode)
-    +16 MiscData[1] (MSBinNode)
-    ...
-
-MiscData[1], at index 16, is an MSBinNode, so we can read its contents. To do
-this, just run:
-
-    brawlls.exe STGDXCORNERIA.pac 2+16
-
-In this command, "2" is a name, because it doesn't come after a plus (+), but
-"16" is an index, because it does. This command prints:
-
-	Wow! I almost feel like going
-	for a swim!
-	You swim in the ocean, too?
-	Don't make fun of me,
-	birdbrain!
-	Ahh, to be young again...
-	Fox! Be careful! I have a bad
-	feeling about this.
-
-...and so on. (See README2.md for more information about MSBin nodes and other
-special cases.)
-
 Extracting files
 ----------------
 
@@ -116,6 +73,57 @@ You can also use the "xall" command to extract all of a node's children. This
 command also lets you specify an extension, which is useful for textures.
 
     brawlls.exe STGFINAL.PAC 2/Texture*/*/planet01 xall my_textures_folder png
+
+Usage example
+-------------
+
+    brawlls.exe common5.pac
+
+	+0 FitPokeLizardonMotionEtc
+	+1 FitPokeZenigameMotionEtc
+	+2 sc_selcharacter2_en
+	+3 sc_selcharacter_en
+	+4 sc_selmap_en
+
+	brawlls.exe common5.pac +4
+
+	+0 MiscData[10]
+	+1 MiscData[11]
+	+2 MiscData[20]
+	+3 MiscData[30]
+	+4 MiscData[40]
+	+5 MiscData[50]
+	+6 MiscData[60]
+	+7 MiscData[70]
+	+8 MiscData[80]
+	+9 MiscData[90]
+
+	brawlls.exe common5.pac +4+8
+
+	+0 3DModels(NW4R)
+	+1 Palettes(NW4R)
+	+2 Textures(NW4R)
+	+3 AnmChr(NW4R)
+	+4 AnmVis(NW4R)
+	+5 AnmClr(NW4R)
+	+6 AnmTexPat(NW4R)
+
+	brawlls.exe common5.pac +4+8+2
+
+	[a bunch of stuff...]
+	+206 MenSelmapPrevbase.57
+	+207 MenSelmapPrevbase.58
+	+208 MenSelmapPrevbase.59
+	+209 MenSelmapIcon_shadow
+
+	mkdir texs
+	brawlls.exe common5.pac +4+8+2 xall texs png
+
+	[a bunch of stuff...]
+	Extracting MenSelmapPrevbase.57 to texs\MenSelmapPrevbase.57.png...
+	Extracting MenSelmapPrevbase.58 to texs\MenSelmapPrevbase.58.png...
+	Extracting MenSelmapPrevbase.59 to texs\MenSelmapPrevbase.59.png...
+	Extracting MenSelmapIcon_shadow to texs\MenSelmapIcon_shadow.png...
 
 More information
 ----------------
