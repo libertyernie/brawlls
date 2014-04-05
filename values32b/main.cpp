@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 	VALUES32B_OPTIONS opts;
 	opts.add_to_address_printout = 0;
 	opts.min_addr_digits = 2;
-	opts.prefix = nullptr;
+	opts.prefix = NULL;
 
 	FILE* in;
 	if (argc == 1) {
