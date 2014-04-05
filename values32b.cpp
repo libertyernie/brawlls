@@ -96,7 +96,7 @@ void values32b_to(std::ostream& out, void* address, size_t bytelength, VALUES32B
 	size_t end_addr = length * sizeof(entry_4byte);
 	if (end_addr != bytelength) {
 		size_t remainder = bytelength - end_addr;
-		char* charptr = ((char*)address) + end_addr;
+		unsigned char* charptr = ((unsigned char*)address) + end_addr;
 
 		size_t current_address = opts.add_to_address_printout + end_addr;
 		if (opts.prefix != nullptr) out << opts.prefix;
