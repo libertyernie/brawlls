@@ -8,7 +8,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-const char* USAGE = R"(Usage: values32b [filename]
+const char* USAGE = R"(Usage: values32b [--no-header] [filename]
 If the filename is omitted, the program will read from standard input.
 For license info run: values32b --license
 )";
@@ -54,6 +54,12 @@ void print_header(size_t addr_digits) {
 const int V32B_BUFFER = 1048576;
 
 int main(int argc, char** argv) {
+	bool use_header = true;
+	while (argc > 1 && strcmp("--no-header", argv[1]) == 0) {
+		use_header = false;
+		argv++;
+		argc--;
+	}
 	if (argc > 1) {
 		if (hashelparg(argc, argv)) {
 			cout << USAGE;
@@ -80,6 +86,7 @@ int main(int argc, char** argv) {
 
 		if (in == NULL) {
 			cerr << "Cannot open file: " << argv[1] << endl;
+			cerr << USAGE;
 			return EXIT_FAILURE;
 		}
 
@@ -91,7 +98,7 @@ int main(int argc, char** argv) {
 	char* buf = new char[V32B_BUFFER];
 	int bytes_read = fread(buf, 1, V32B_BUFFER, in); // read first chunk
 	opts.increase_min_addr_digits(bytes_read); // expand digit space to show max address of this chunk
-	print_header(opts.min_addr_digits);
+	if (use_header) print_header(opts.min_addr_digits);
 
 	while (bytes_read > 0) {
 		values32b_to_cout(buf, bytes_read, opts);
