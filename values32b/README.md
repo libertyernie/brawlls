@@ -18,8 +18,9 @@ values32b outputs one line for every four bytes, in the format:
 * Bytes as ASCII data
 * Bytes in raw hexadecimal format
 
-The code was built to read data files from Super Smash Bros. Brawl ttat store
-32-bit integers and floating-point values.
+The underlying code was built to read data files from Super Smash Bros. Brawl
+that store 32-bit integers and floating-point values. values32b re-purposes
+this code into a standalone application.
 
 Sample
 ------

@@ -4,9 +4,12 @@ brawlls
 Recursive listing of SSBB data file contents from the command line. (C++/CLI)
 
 This repository also contains a C++ program named values32b that compiles with
-Visual Studio as well as g++. The code in values32b.cpp is also included in
-brawlls - primarily to describe STDT data, which is not supported directly by
-BrawlLib but occasionally used to modify stage files.
+Visual Studio as well as g++. See values32/README.md for more information.
+
+Binaries for brawlls 1.0 and values32b can be found in the "Release" folder.
+Both programs were compiled to support for Windows XP and above. The Visual
+C++ 2013 libraries are required, and can be found here:
+http://www.microsoft.com/en-us/download/details.aspx?id=40784
 
 Normal operation
 ----------------
