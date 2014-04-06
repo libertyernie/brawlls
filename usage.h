@@ -1,3 +1,5 @@
+const char* title = "brawlls 1.0 (April 6, 2014)";
+
 const char* usage_line = "Usage: brawlls [options] filename [path within file]";
 const char* usage_help_line = "Run with --help or /? for more information.";
 

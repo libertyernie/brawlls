@@ -114,6 +114,7 @@ int brawlls(array<String^>^ args) {
 
 	for each(String^ argument in args) {
 		if (argument == "--help" || argument == "/?") {
+			Console::WriteLine(gcnew String(title));
 			Console::WriteLine(gcnew String(usage_line));
 			Console::WriteLine(gcnew String(usage_desc));
 			return 0;
