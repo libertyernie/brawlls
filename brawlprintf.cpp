@@ -35,7 +35,7 @@ String^ format_obj(String^ format, String^ prefix, Object^ obj) {
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
 		if (format->Contains("%m")) { // don't do this if we don't need the data - this does save some time
-			md5 = "MD5:" + node->MD5Str();
+			md5 = "MD5:" + node->MD5StrEnsureChildrenIncluded();
 		}
 		index = node->Index + "";
 		size = node->OriginalSource.Length + "";
