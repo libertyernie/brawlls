@@ -9,7 +9,7 @@ const char* usage_desc = R"(
                 --mdl0 and --deep behaviors are default for the root node, so
                 you can specify a node in the [path within file] section to
                 print it out. --deep applies the same behavior to all children.
--c          find only the first path that matches (disables wildcards and +s)
+-c          find only the first path that matches (disables wildcards and "+"s)
 --help, /?  print this message to stdout
 
 --xhelp     info about the "x" command
