@@ -135,6 +135,8 @@ int brawlls(array<String^>^ args) {
 		else if (argument == "--deep") deep = true;
 		else if (argument == "--mdl0") mdl0deep = true;
 		else if (argument == "--shallow") deep = false;
+		else if (argument == "--bone") boneValues = true;
+		else if (argument == "--no-bone") boneValues = false;
 		else if (argument->StartsWith("--format=")) format = argument->Substring(9);
 		else if (argument->StartsWith("-") && argument->Length > 1) {
 			for each(char c in argument->Substring(1)) {
