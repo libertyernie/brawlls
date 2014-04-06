@@ -1,7 +1,12 @@
 *.obj
 *.vcxproj.user
 Debug/
-Release/
+Release/*.*
+!Release/brawlls.exe
+!Release/values32b.exe
+!Release/*.dll
+!Release/BrawlLib.txt
+values32b/Release
 
 *.*sdf
 *.suo

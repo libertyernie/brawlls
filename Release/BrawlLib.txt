@@ -1,0 +1,65 @@
+﻿
+BrawlLib Resource Library - Version 0.18L3
+Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
+Copyright © 2013 - 2014 libertyernie
+
+This program is provided as-is without any warranty, implied or otherwise.
+By using this program, the end user agrees to take full responsibility
+regarding its proper and lawful use. The authors/hosts/distributors cannot be 
+held responsible for any damage resulting in the use of this program, nor can 
+they be held accountable for the manner in which it is used.
+
+---------Note----------
+This fork of BrawlLib is based on BrawlLib v0.18 from:
+http://forums.kc-mm.com/index.php?topic=17547.0
+
+It will remain backwards compatible with BrawlBox v0.71,
+while also adding additional properties/methods needed
+for my own software.
+
+The source is available at: https://github.com/libertyernie/brawltools
+
+-libertyernie
+-----------------------
+
+ ====================================
+|************ Change Log ************|
+ ====================================
+
+ (4/6/2014) - BrawlLib v0.18L3 (libertyernie)
+    . Two versions of MD5 checksum now available in ResourceNode
+	  . MD5() or MD5Str(): gets the MD5 checksum of OriginalSource (or null if there is none)
+	  . MD5EnsureChildrenIncluded() or MD5StrEnsureChildrenIncluded(): will XOR own MD5 sum with those of children if children aren't already included in the node's own data
+    . Note: result of MD5() is NOT guaranteed to match the MD5 checksum of a node's data after being exported to a separate file
+
+ (3/13/2014) - BrawlLib v0.18L2 (libertyernie)
+	. When exporting BRES entries (TEX0, MDL0, etc.), reset the BRES index offset (0x0c, 4 bytes) to 0 so that exported files with the same data will be identical
+	. Implement MD5() and MD5Str() functions to get checksums of resource node data
+	. Override MD5() for BRESEntryNode to simulate the export behavior, so checksums of identical nodes will match
+
+ (2/13/2014) - BrawlLib v0.18L (libertyernie)
+	. Added the HideMDL0Errors assembly property, which will prevent dialog boxes from appearing when MDL0 errors are detected
+	. Added the InitialSize and InitialFormat properties to TextureConverterDialog
+	. Added Volume and VolumePercent properties to AudioPlaybackPanel
+
+ For changes prior to 2014, see: https://github.com/libertyernie/brawltools/blob/367f812284b03d0f6e201f6b3a840d9cbac4107f/BrawlLib/BrawlLib.txt
+
+ ====================================
+|*********** Requirements ***********|
+ ====================================
+ 
+* Microsoft .Net Framework v4.0
+	http://www.microsoft.com/en-us/download/details.aspx?id=17718
+	
+* A video card that supports OpenGL 1.1 or higher.
+
+ ====================================
+|********* Acknowledgements *********|
+ ====================================
+
+Super Smash Brothers Brawl is copyrighted property - © 2008 Nintendo and HAL Laboratory, Inc.
+
+Characters are copyrighted by the following:
+© Nintendo / HAL Laboratory, Inc. / Pokemon / Creatures Inc. / GAME FREAK Inc. / SHIGESATO ITOI / 
+APE Inc. / INTELLIGENT SYSTEMS / Konami Digital Entertainment Co., Ltd. / SEGA
+
