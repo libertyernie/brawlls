@@ -6,6 +6,7 @@ using System::ComponentModel::CategoryAttribute;
 using System::Reflection::PropertyInfo;
 using System::Text::StringBuilder;
 using System::IO::StringWriter;
+using BrawlLib::SSBB::NodeDeepChecksum;
 using namespace BrawlLib::SSBB::ResourceNodes;
 
 bool data_tag_is(const char* tag, ResourceNode^ node) {
@@ -35,7 +36,7 @@ String^ format_obj(String^ format, String^ prefix, Object^ obj) {
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
 		if (format->Contains("%m")) { // don't do this if we don't need the data - this does save some time
-			md5 = "MD5:" + node->MD5StrEnsureChildrenIncluded();
+			md5 = "MD5:" + NodeDeepChecksum::MD5StrEnsureChildrenIncluded(node);
 		}
 		index = node->Index + "";
 		size = node->OriginalSource.Length + "";
