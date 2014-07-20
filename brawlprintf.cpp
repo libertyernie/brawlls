@@ -1,5 +1,6 @@
 #include "isinst.h"
 #include "values32b.h"
+#include <cstdint>
 
 using namespace System;
 using System::ComponentModel::CategoryAttribute;
@@ -74,6 +75,21 @@ String^ properties_lines(String^ prefix, Object^ node) {
 	return sb.ToString();
 }
 
+String^ stdt_lines(String^ prefix, STDTNode^ node) {
+	StringBuilder sb;
+	for each(AttributeInterpretation^ ai in node->GetPossibleInterpretations()) {
+		array<AttributeInfo^>^ arr = ai->Array;
+		for (int i = 0; i < arr->Length; i++) {
+			sb.Append(prefix + arr[i]->_name + " ");
+			sb.AppendLine(arr[i]->_type == 0 ? node->GetFloat(i).ToString()
+				: arr[i]->_type == 1 ? node->GetInt(i).ToString()
+				: "x" + node->GetInt(i).ToString("X8"));
+		}
+		break;
+	}
+	return sb.ToString();
+}
+
 String^ details_str(String^ prefix, ResourceNode^ node) {
 	if (isinst<STPMEntryNode^>(node)) {
 		return properties_lines(prefix, node);
@@ -84,8 +100,8 @@ String^ details_str(String^ prefix, ResourceNode^ node) {
 			sb.AppendLine(prefix + s);
 		}
 		return sb.ToString();
-	} else if (data_tag_is("STDT", node)) {
-		return values32b_to_clistr(prefix, node);
+	} else if (isinst<STDTNode^>(node)) {
+		return stdt_lines(prefix, (STDTNode^)node);
 	} else {
 		return nullptr;
 	}
