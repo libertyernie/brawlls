@@ -89,6 +89,7 @@
     <ClCompile Include="brawlls.cpp" />
     <ClCompile Include="brawlprintf.cpp" />
     <ClCompile Include="find_children.cpp" />
+    <ClCompile Include="NodeDeepChecksum.cpp" />
     <ClCompile Include="values32b.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +97,7 @@
     <ClInclude Include="brawlprintf.h" />
     <ClInclude Include="find_children.h" />
     <ClInclude Include="isinst.h" />
+    <ClInclude Include="NodeDeepChecksum.h" />
     <ClInclude Include="values32b.h" />
     <ClInclude Include="usage.h" />
   </ItemGroup>

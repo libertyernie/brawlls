@@ -73,12 +73,12 @@ void stdin_to_file(String^ tmpfile) {
 ResourceNode^ load_node_from_file_or_stdin(String^ filename) {
 	ResourceNode^ node;
 	if (filename != "-") {
-		node = NodeFactory::FromFile(nullptr, filename);
+		node = NodeFactory::FromFile(nullptr, filename, System::IO::FileOptions::RandomAccess);
 	} else {
 		// write contents of stdin to a temporary file
 		String^ tmpfile = Path::GetTempFileName();
 		stdin_to_file(tmpfile);
-		node = NodeFactory::FromFile(nullptr, tmpfile);
+		node = NodeFactory::FromFile(nullptr, tmpfile, System::IO::FileOptions::RandomAccess);
 		cleanup_args::tempFile = node;
 		atexit(cleanup);
 	}
