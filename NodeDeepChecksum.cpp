@@ -6,12 +6,6 @@ using System::Text::StringBuilder;
 
 #include "NodeDeepChecksum.h"
 
-enum NodeDeepChecksumResultType {
-	NODE_DEEP_CHECKSUM_SELF = 1,
-	NODE_DEEP_CHECKSUM_CHILDREN_XOR = 2,
-	NODE_DEEP_CHECKSUM_SELF_AND_CHILDREN_XOR = 4
-};
-
 /// <summary>
 /// Determines whether all of this node's direct children are contained between the start and end of its own data.
 /// If the result is false, an identical MD5() result will not guarantee that the node's children have not changed.

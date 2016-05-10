@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "NodeDeepChecksum.h"
+#include "brawlprintf.h"
 
 using namespace System;
 using System::ComponentModel::CategoryAttribute;
@@ -38,7 +39,7 @@ String^ format_obj(String^ format, String^ prefix, Object^ obj) {
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
 		if (format->Contains("%m")) { // don't do this if we don't need the data - this does save some time
-			md5 = "MD5:" + MD5StrEnsureChildrenIncluded(node);
+			md5 = "MD5:" + MD5EnsureChildrenIncluded(node, nullptr);
 		}
 		index = node->Index + "";
 		size = node->OriginalSource.Length + "";
@@ -48,6 +49,17 @@ String^ format_obj(String^ format, String^ prefix, Object^ obj) {
 		}
 		if (path->EndsWith("/")) path = path->Substring(0, path->Length - 1);
 	}
+
+	StringBuilder name2;
+	for each (wchar_t c in name) {
+		if (c > 128) {
+			name2.Append("\\u" + ((int)c).ToString("x4"));
+		} else {
+			name2.Append(c);
+		}
+	}
+	name = name2.ToString();
+
 	return format
 		->Replace("%~", prefix)
 		->Replace("%n", name)
