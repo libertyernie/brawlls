@@ -39,7 +39,10 @@ String^ format_obj(String^ format, String^ prefix, Object^ obj) {
 	if (isinst<ResourceNode^>(obj)) {
 		ResourceNode^ node = (ResourceNode^)obj;
 		if (format->Contains("%m")) { // don't do this if we don't need the data - this does save some time
-			md5 = "MD5:" + MD5EnsureChildrenIncluded(node, nullptr);
+			md5 = "MD5:";
+			for each (unsigned char c in MD5EnsureChildrenIncluded(node, nullptr)) {
+				md5 += c.ToString("X2");
+			}
 		}
 		index = node->Index + "";
 		size = node->OriginalSource.Length + "";
